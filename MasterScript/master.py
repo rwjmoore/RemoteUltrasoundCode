@@ -20,7 +20,7 @@ import imutils
 import cv2
 import os
 import time
-import matlab.engine
+# import matlab.engine
 import sys
 import faulthandler
 
@@ -28,12 +28,13 @@ class VideoStream:
 
     #this is the constructor of our class
         #the outputPath is where we save the videos
-    def __init__(self, vs1, outputPath):
+    def __init__(self, vs1, vs2, outputPath):
         # store the video stream object and output path, then initialize
         # the most recently read frame, thread for reading frames, and
         # the thread stop event
         self.record = False
         self.vs1 = vs1
+        self.vs2 = vs2
         self.outputPath = outputPath
         self.frame1 = None
         self.thread1 = None
@@ -80,13 +81,13 @@ class VideoStream:
         self.lock = threading.Lock()
         self.stopEvent = threading.Event()
         self.thread1 = threading.Thread(target=self.videoLoop, args=(vs1,'1',))
-        #self.thread2 = threading.Thread(target=self.videoLoop, args=(vs1,'2',))
+        self.thread2 = threading.Thread(target=self.videoLoop, args=(vs2,'2',))
         
         self.thread1.setDaemon(True)
-        #self.thread2.setDaemon(True)
+        self.thread2.setDaemon(True)
         
         self.thread1.start()
-        #self.thread2.start()
+        self.thread2.start()
         
         # set a callback to handle when the window is closed
         self.root.wm_title("Remote Ultrasound Suite")
@@ -221,12 +222,16 @@ from datetime import datetime
 faulthandler.enable()
 print("warming up camera...")
 
-vs = cv2.VideoCapture()
+vs1 = cv2.VideoCapture()
 #below is the index (0) to get ultrasound video feed
-vs.open(0, cv2.CAP_AVFOUNDATION)
+vs1.open(0)
 time.sleep(2.0)
+
+print("warming up camera 2...")
+vs2 = cv2.VideoCapture()
+vs2.open(1)
 
 #start the app
 
-pba = VideoStream(vs, "")
+pba = VideoStream(vs1,vs2, "")
 pba.root.mainloop()
