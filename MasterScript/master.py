@@ -20,7 +20,7 @@ import imutils
 import cv2
 import os
 import time
-# import matlab.engine
+import matlab.engine
 import sys
 import faulthandler
 
@@ -113,7 +113,10 @@ class VideoStream:
                     
                     if self.record == True:
                         #print("recording")
-                        self.writer1.write(frame)
+                        if panel == "1":
+                            self.writer1.write(frame)
+                        else:
+                            self.writer2.write(frame)
                     
                     frame = imutils.resize(frame, width=600)
                     # OpenCV represents images in BGR order; however PIL
@@ -160,14 +163,14 @@ class VideoStream:
     def record_flag(self):
         #PURPOSE: To set the record_flag to True on button press so that recording can begin
         
-        self.button.configure(highlightbackground='red',)
+        self.button.configure(bg='red',)
         #video saving
         width= int(self.vs1.get(cv2.CAP_PROP_FRAME_WIDTH))
         height= int(self.vs1.get(cv2.CAP_PROP_FRAME_HEIGHT))
         #start the writer's for saving the video
         self.writer1= cv2.VideoWriter('UltrasoundVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
         
-        writer2= cv2.VideoWriter('HeadmountVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
+        self.writer2= cv2.VideoWriter('HeadmountVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
         self.record = True
         print("starting recording")
     
@@ -179,8 +182,10 @@ class VideoStream:
         self.stopEvent.set()
         print("stop event set")
         self.vs1.release()
+        self.vs2.release()
         if self.record == True:
             self.writer1.release()
+            self.writer2.release()
         
         cv2.destroyAllWindows()
 
@@ -229,7 +234,10 @@ time.sleep(2.0)
 
 print("warming up camera 2...")
 vs2 = cv2.VideoCapture()
+
+#NOTE: open(1) opens the Microsoft LifeCam Cinema HD USB webcam 
 vs2.open(1)
+time.sleep(2.0)
 
 #start the app
 
