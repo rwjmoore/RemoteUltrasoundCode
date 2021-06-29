@@ -3,7 +3,7 @@
 
 
 clear;
-load("/Users/RJ/Desktop/Summer21Research/API-AuroraSystem/MatlabWorkspaces/Workspace_for_orientation_testing.mat")
+load("C:/Users/randy/Documents/GitHub/Summer21Research/API-AuroraSystem/MatlabWorkspaces/Workspace_for_orientation_testing.mat")
 
 hFigure = figure('Name','US Probe Orientation','NumberTitle','off','Position',[500 100 500 500])
 set(hFigure, 'MenuBar', 'none');

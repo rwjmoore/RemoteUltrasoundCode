@@ -229,14 +229,14 @@ print("warming up camera...")
 
 vs1 = cv2.VideoCapture()
 #below is the index (0) to get ultrasound video feed
-vs1.open(0)
+vs1.open(2)
 time.sleep(2.0)
 
 print("warming up camera 2...")
 vs2 = cv2.VideoCapture()
 
 #NOTE: open(1) opens the Microsoft LifeCam Cinema HD USB webcam 
-vs2.open(1)
+vs2.open(0)
 time.sleep(2.0)
 
 #start the app
