@@ -2,7 +2,8 @@ import cv2
 from datetime import datetime
 cap= cv2.VideoCapture()
 #below is the index (0) to get ultrasound video feed
-cap.open(0, cv2.CAP_AVFOUNDATION)
+#cap.open(0, cv2.CAP_AVFOUNDATION) this is for MAC!
+cap.open(2)
 width= int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height= int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
