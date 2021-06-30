@@ -366,7 +366,7 @@ class VideoStream:
         eng = matlab.engine.start_matlab()
         print("engine started")
         try:
-            eng.realTimeOrientationSensor(nargout=0) #simple_script is the name of the .m file!
+            eng.realTimeOrientationSensorSAVE(nargout=0) #simple_script is the name of the .m file!
             
         except:
             print("there was an error when stopping matlab script")
