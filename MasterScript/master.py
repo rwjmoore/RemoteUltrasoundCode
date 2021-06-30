@@ -285,8 +285,8 @@ class VideoStream:
                                 self.mypanels[panel].image = image
                             
                             self.lock.release()
-                        else:
-                            print("lock not acquired")
+                        #else:
+                            #print("lock not acquired")
                     except:
                         print("something failed in locking mechanism")
                             
@@ -366,7 +366,7 @@ class VideoStream:
         eng = matlab.engine.start_matlab()
         print("engine started")
         try:
-            eng.realTimeOrientationAndPosition(nargout=0) #simple_script is the name of the .m file!
+            eng.realTimeOrientationSensor(nargout=0) #simple_script is the name of the .m file!
             
         except:
             print("there was an error when stopping matlab script")
@@ -397,7 +397,7 @@ print("warming up headmounted camera...")
 ### CAMERA 1 (headmounted cam)
 vs1 = cv2.VideoCapture()
 #below is the index (0) to get ultrasound video feed
-vs1.open(2)
+vs1.open(3)
 time.sleep(1)
 
 
