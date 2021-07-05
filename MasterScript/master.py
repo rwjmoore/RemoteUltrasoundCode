@@ -30,80 +30,11 @@ import time
 import matlab.engine
 import sys
 import faulthandler
+import csv
 
 """SKELETON TRACKING FUNCTIONS"""
 
-"""MODIFIED TO ALLOW US TO SAVE THE JOINT VALUES"""
-def render_ids_3d(
-    render_image, skeletons_2d, depth_map, depth_intrinsic, joint_confidence
-):
-    thickness = 1
-    text_color = (255, 255, 255)
-    rows, cols, channel = render_image.shape[:3]
-    distance_kernel_size = 5
-    # calculate 3D keypoints and display them
-    for skeleton_index in range(len(skeletons_2d)):
-        skeleton_2D = skeletons_2d[skeleton_index]
-        joints_2D = skeleton_2D.joints
-        did_once = False
-        for joint_index in range(len(joints_2D)):
-            if did_once == False:
-                cv2.putText(
-                    render_image,
-                    "id: " + str(skeleton_2D.id),
-                    (int(joints_2D[joint_index].x), int(joints_2D[joint_index].y - 30)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.55,
-                    text_color,
-                    thickness,
-                )
-                did_once = True
-            # check if the joint was detected and has valid coordinate
-            if skeleton_2D.confidences[joint_index] > joint_confidence:
-                distance_in_kernel = []
-                low_bound_x = max(
-                    0,
-                    int(
-                        joints_2D[joint_index].x - math.floor(distance_kernel_size / 2)
-                    ),
-                )
-                upper_bound_x = min(
-                    cols - 1,
-                    int(joints_2D[joint_index].x + math.ceil(distance_kernel_size / 2)),
-                )
-                low_bound_y = max(
-                    0,
-                    int(
-                        joints_2D[joint_index].y - math.floor(distance_kernel_size / 2)
-                    ),
-                )
-                upper_bound_y = min(
-                    rows - 1,
-                    int(joints_2D[joint_index].y + math.ceil(distance_kernel_size / 2)),
-                )
-                for x in range(low_bound_x, upper_bound_x):
-                    for y in range(low_bound_y, upper_bound_y):
-                        distance_in_kernel.append(depth_map.get_distance(x, y))
-                median_distance = np.percentile(np.array(distance_in_kernel), 50)
-                depth_pixel = [
-                    int(joints_2D[joint_index].x),
-                    int(joints_2D[joint_index].y),
-                ]
-                if median_distance >= 0.3:
-                    point_3d = rs.rs2_deproject_pixel_to_point(
-                        depth_intrinsic, depth_pixel, median_distance
-                    )
-                    point_3d = np.round([float(i) for i in point_3d], 3)
-                    point_str = [str(x) for x in point_3d]
-                    cv2.putText(
-                        render_image,
-                        str(point_3d),
-                        (int(joints_2D[joint_index].x), int(joints_2D[joint_index].y)),
-                        cv2.FONT_HERSHEY_DUPLEX,
-                        0.4,
-                        text_color,
-                        thickness,
-                    )
+
 
 
 class VideoStream:
@@ -122,6 +53,8 @@ class VideoStream:
         self.frame1 = None
         self.thread1 = None
         self.stopEvent = None
+        self.dataFrame = [["Nose", "Center of Chest", "right shoulder", "right elbow", "right wrist", "left shoulder", "left elbow", "left wrist", "right hip", "right knee", "right ankle", "left hip", "left knee", "right ankle", "right eye", "left eye", "right ear", "left ear", "time"]]
+
 
         #SKELETON TRACKING STUFF
         print("initiating skeletal tracking pipeline")
@@ -316,10 +249,86 @@ class VideoStream:
         # render the skeletons on top of the acquired image and display it
         color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
         cm.render_result(skeletons, color_image, self.joint_confidence)
-        render_ids_3d(
+        self.render_ids_3d(
             color_image, skeletons, self.depth, self.depth_intrinsic, self.joint_confidence
         )
         return color_image
+
+
+
+        """MODIFIED TO ALLOW US TO SAVE THE JOINT VALUES"""
+        #NOTE: 
+        #18 points in the skeleton tracker 
+    def render_ids_3d(
+        self, render_image, skeletons_2d, depth_map, depth_intrinsic, joint_confidence
+    ):
+        thickness = 1
+        text_color = (255, 255, 255)
+        rows, cols, channel = render_image.shape[:3]
+        distance_kernel_size = 5
+        # calculate 3D keypoints and display them
+        for skeleton_index in range(len(skeletons_2d)):
+            skeleton_2D = skeletons_2d[skeleton_index]
+            joints_2D = skeleton_2D.joints
+            did_once = False
+            for joint_index in range(len(joints_2D)):
+                if did_once == False:
+                    cv2.putText(
+                        render_image,
+                        "id: " + str(skeleton_2D.id),
+                        (int(joints_2D[joint_index].x), int(joints_2D[joint_index].y - 30)),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.55,
+                        text_color,
+                        thickness,
+                    )
+                    did_once = True
+                # check if the joint was detected and has valid coordinate
+                if skeleton_2D.confidences[joint_index] > joint_confidence:
+                    distance_in_kernel = []
+                    low_bound_x = max(
+                        0,
+                        int(
+                            joints_2D[joint_index].x - math.floor(distance_kernel_size / 2)
+                        ),
+                    )
+                    upper_bound_x = min(
+                        cols - 1,
+                        int(joints_2D[joint_index].x + math.ceil(distance_kernel_size / 2)),
+                    )
+                    low_bound_y = max(
+                        0,
+                        int(
+                            joints_2D[joint_index].y - math.floor(distance_kernel_size / 2)
+                        ),
+                    )
+                    upper_bound_y = min(
+                        rows - 1,
+                        int(joints_2D[joint_index].y + math.ceil(distance_kernel_size / 2)),
+                    )
+                    for x in range(low_bound_x, upper_bound_x):
+                        for y in range(low_bound_y, upper_bound_y):
+                            distance_in_kernel.append(depth_map.get_distance(x, y))
+                    median_distance = np.percentile(np.array(distance_in_kernel), 50)
+                    depth_pixel = [
+                        int(joints_2D[joint_index].x),
+                        int(joints_2D[joint_index].y),
+                    ]
+                    if median_distance >= 0.3:
+                        point_3d = rs.rs2_deproject_pixel_to_point(
+                            depth_intrinsic, depth_pixel, median_distance
+                        )
+                        point_3d = np.round([float(i) for i in point_3d], 3)
+                        point_str = [str(x) for x in point_3d]
+                        cv2.putText(
+                            render_image,
+                            str(point_3d),
+                            (int(joints_2D[joint_index].x), int(joints_2D[joint_index].y)),
+                            cv2.FONT_HERSHEY_DUPLEX,
+                            0.4,
+                            text_color,
+                            thickness,
+                        )
 
                 
                 
@@ -345,8 +354,22 @@ class VideoStream:
         print("[INFO] closing...")
         self.stopEvent.set()
         print("stop event set")
-        self.vs1.release()
-        self.vs2.release()
+
+        print("saving skeletal data to csv...")
+        #insert header to start of the dataFrame
+        file = open('skeleData.csv', 'w', newline ="")
+
+        with file: 
+            write = csv.writer(file)
+            write.writerows(self.dataFrame)
+        
+        print("...skeleton data saved successfully")
+        if self.vs1.isOpened(): 
+            self.vs1.release()
+
+        if self.vs2.isOpened():
+            self.vs2.release()
+
         if self.record == True:
             self.writer1.release()
             self.writer2.release()
@@ -404,9 +427,10 @@ else:
 time.sleep(2)
 
 
+
 ### CAMERA 2 (haedmount Feed)
 print("initatiating headmount cam...", end =' ')
-vs2 = cv2.VideoCapture()
+vs2 = cv2.VideoCapture(cv2.CAP_DSHOW)
 #NOTE: open(1) opens the Microsoft LifeCam Cinema HD USB webcam 
 #NOTE: open(2) opens the RealSense USB camera connection 
 

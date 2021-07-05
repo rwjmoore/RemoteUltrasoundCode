@@ -1,3 +1,25 @@
+#POINTS:
+"""
+1 Nose 
+2 Center of Chest 
+3 right shoulder 
+4 right elbow
+5 right wrist 
+6 left shoulder
+7 left elbow
+8 left wrist 
+9 right hip
+10 right knee
+11 right ankle
+12 left hip
+13 left knee 
+14 right ankle 
+15 right eye 
+16 left eye 
+17 right ear 
+18 left ear
+ """
+
 #!/usr/bin/env python3
 from collections import namedtuple
 import util as cm
@@ -7,15 +29,20 @@ import pyrealsense2 as rs
 import math
 import numpy as np
 from skeletontracker import skeletontracker
+import csv
+
 
 
 def render_ids_3d(
     render_image, skeletons_2d, depth_map, depth_intrinsic, joint_confidence
 ):
+    global dataFrame
+    zeroList = ["0,0,0"]
     thickness = 1
     text_color = (255, 255, 255)
     rows, cols, channel = render_image.shape[:3]
     distance_kernel_size = 5
+    intermediateSkeleJoint =[]
     # calculate 3D keypoints and display them
     for skeleton_index in range(len(skeletons_2d)):
         skeleton_2D = skeletons_2d[skeleton_index]
@@ -35,6 +62,7 @@ def render_ids_3d(
                 )
                 did_once = True
             # check if the joint was detected and has valid coordinate
+            # print("[0, 0, 0]", )
             if skeleton_2D.confidences[joint_index] > joint_confidence:
                 distance_in_kernel = []
                 low_bound_x = max(
@@ -70,7 +98,14 @@ def render_ids_3d(
                         depth_intrinsic, depth_pixel, median_distance
                     )
                     point_3d = np.round([float(i) for i in point_3d], 3)
+                    #appends the calculated joint to the 3D value
+                    
+
                     point_str = [str(x) for x in point_3d]
+                    #this part combines all into a single string
+                    mySeparator = ","
+                    intermediateSkeleJoint = np.append(intermediateSkeleJoint, mySeparator.join(point_str) )
+                    
                     print(point_str, ",")
                     cv2.putText(
                         render_image,
@@ -81,6 +116,15 @@ def render_ids_3d(
                         text_color,
                         thickness,
                     )
+                else:
+                    print("[0,0,0]")
+                    intermediateSkeleJoint =np.append(intermediateSkeleJoint, zeroList)
+            else:
+                print(zeroList)
+                intermediateSkeleJoint = np.append(intermediateSkeleJoint, zeroList)
+        #timestamp
+        intermediateSkeleJoint = np.append(intermediateSkeleJoint, str(time.time()))
+        dataFrame.append(intermediateSkeleJoint)
         print("one skeleton down")
                     
 
@@ -88,6 +132,7 @@ def render_ids_3d(
 # Main content begins
 if __name__ == "__main__":
     try:
+        dataFrame = [["Nose", "Center of Chest", "right shoulder", "right elbow", "right wrist", "left shoulder", "left elbow", "left wrist", "right hip", "right knee", "right ankle", "left hip", "left knee", "right ankle", "right eye", "left eye", "right ear", "left ear", "time"]]
         # Configure depth and color streams of the intel realsense
         config = rs.config()
         config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
@@ -107,7 +152,7 @@ if __name__ == "__main__":
         depth_intrinsic = depth.profile.as_video_stream_profile().intrinsics
 
         # Initialize the cubemos api with a valid license key in default_license_dir()
-        skeletrack = skeletontracker(cloud_tracking_api_key="prvBNxcOwU867y7pFn2dM2brA5kFzllIaBwWVcTc")
+        skeletrack = skeletontracker(cloud_tracking_api_key="")
         joint_confidence = 0.2
 
         # Create window for initialisation
@@ -139,9 +184,21 @@ if __name__ == "__main__":
             cv2.imshow(window_name, color_image)
             if cv2.waitKey(1) == 27:
                 break
-
+        
+        print(dataFrame)
         pipeline.stop()
         cv2.destroyAllWindows()
 
+        #now save the data: 
+
+        #insert header to start of the dataFrame
+        file = open('skeleData.csv', 'w', newline ="")
+
+        with file: 
+            write = csv.writer(file)
+            write.writerows(dataFrame)
+
+
     except Exception as ex:
         print('Exception occured: "{}"'.format(ex))
+        
