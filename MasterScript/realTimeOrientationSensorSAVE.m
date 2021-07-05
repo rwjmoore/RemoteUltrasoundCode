@@ -85,7 +85,7 @@ set(p, 'Parent', tfObject); %sets the parent of 'p' to the tfObject
    x = 0;
    hWaitbar = waitbar(0, 'Stop', 'Name', 'Collecting Data','CreateCancelBtn','delete(gcbf)');
    drawnow; 
-   for loop = 1:1000
+   while(1)
         
         tic
         aurora_device.updateSensorDataAll()
@@ -124,7 +124,14 @@ set(p, 'Parent', tfObject); %sets the parent of 'p' to the tfObject
                 %convert quat to rotation matrix 
                 rotm = quat2rotm(quat);
                 
+                %%%WHEN STANDING UP I NEED TO ROTATE Y AXIS -90 degrees
+                b = pi/2;
+                R = [cos(b) 0 sin(b); 0 1 0; -1*sin(b) 0 cos(b)];
+                rotm = R*rotm;
+                
+                
                 % Populate the transform matrix with 9 rotation matrix elements
+                
                 for row = 1:3
                     for column = 1:3
                         % Extract the 2 bytes representing the current element in the rotation matrix
@@ -134,10 +141,18 @@ set(p, 'Parent', tfObject); %sets the parent of 'p' to the tfObject
                 end
 
                 %populate the translation entries in the transform matrix with position
-
-                 for row = 1:3
-                        transformMatrix(row, 4) = trans(row);
-                 end
+                  
+                %for up on its side
+                transformMatrix(1, 4) = -1*trans(3);
+                transformMatrix(2, 4) = trans(2);
+                transformMatrix(3, 4) = 1*trans(1);
+                
+                
+                %for on the bottom, use this code instead and comment the
+                %above part out
+%                  for row = 3:1
+%                         transformMatrix(row, 4) = trans(row);
+%                  end
 
                 
                 % Update plot

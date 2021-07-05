@@ -32,6 +32,8 @@ import sys
 import faulthandler
 
 """SKELETON TRACKING FUNCTIONS"""
+
+"""MODIFIED TO ALLOW US TO SAVE THE JOINT VALUES"""
 def render_ids_3d(
     render_image, skeletons_2d, depth_map, depth_intrinsic, joint_confidence
 ):
@@ -153,7 +155,7 @@ class VideoStream:
         
         # initialize the root window and image panel
         self.root = tki.Tk()
-        
+        self.root.configure(background = 'dark grey')
         self.panel1 = None
         self.panel2 = None
         self.panel3 = None
@@ -247,7 +249,7 @@ class VideoStream:
                         elif panel == "2":
                             self.writer2.write(frame)
                     
-                    frame = imutils.resize(frame, width=400)
+                    frame = imutils.resize(frame, width=525)
                     # OpenCV represents images in BGR order; however PIL
                     # represents images in RGB order, so we need to swap
                     # the channels, then convert to PIL and ImageTk format
@@ -320,9 +322,6 @@ class VideoStream:
         return color_image
 
                 
-
-        
-                
                 
     def record_flag(self):
         #PURPOSE: To set the record_flag to True on button press so that recording can begin
@@ -333,7 +332,8 @@ class VideoStream:
         height= int(self.vs1.get(cv2.CAP_PROP_FRAME_HEIGHT))
         #start the writer's for saving the video
         self.writer1= cv2.VideoWriter('UltrasoundVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
-        
+        width= int(self.vs2.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height= int(self.vs2.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.writer2= cv2.VideoWriter('HeadmountVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
         self.record = True
         print("starting recording")
@@ -392,22 +392,29 @@ class VideoStream:
 
 from datetime import datetime
 faulthandler.enable()
-print("warming up headmounted camera...")
+print("warming up ultrasound feed...", end = "")
 
-### CAMERA 1 (headmounted cam)
+### CAMERA 1 (Ultrasound)
 vs1 = cv2.VideoCapture()
 #below is the index (0) to get ultrasound video feed
-vs1.open(3)
-time.sleep(1)
+if vs1.open(5) == True:
+    print(" ultrasound feed successfully opened")
+else:
+    print(" ultrasound feed did not open")
+time.sleep(2)
 
 
-### CAMERA 2 (ultrasound feed)
-print("initiating ultrasound feed...")
+### CAMERA 2 (haedmount Feed)
+print("initatiating headmount cam...", end =' ')
 vs2 = cv2.VideoCapture()
 #NOTE: open(1) opens the Microsoft LifeCam Cinema HD USB webcam 
 #NOTE: open(2) opens the RealSense USB camera connection 
-vs2.open(0)
-time.sleep(1)
+
+if vs2.open(0) == True:
+    print(" headmounted camera started")
+else: 
+    print("headmounted camera did not open")
+time.sleep(2)
 
 ###CAMERA 3 (posture measurement feed)
 #NOTE: open(3) opens third camera

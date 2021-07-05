@@ -7,7 +7,7 @@ serial_present = instrfind;
 if(~isempty(serial_present)) 
     fprintf("device found... connecting \n" );
     aurora_device.openSerialPort();
-    aurora_device.setBaudRate(230400);
+    aurora_device.setBaudRate(921600);
     fprintf("device connected... initializing Aurora \n");
     aurora_device.init();
     aurora_device.detectAndAssignPortHandles();

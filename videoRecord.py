@@ -5,12 +5,19 @@ import time
 #below is the index (0) to get ultrasound video feed
 #cap.open(0, cv2.CAP_AVFOUNDATION) this is for MAC!
 #cap.open(5) Works for US when connected into the USB3.0 port 
-cap.open(3)
+
+#0 opens Lidar cam 
+#1 
+#2
+#3 normal cam
+#4 opens stereo depth
+#5 ultrasound
+cap.open(0)
 width= int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height= int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 
-writer= cv2.VideoWriter('UltrasoundVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
+writer= cv2.VideoWriter('Test.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
 
 while True:
     ret,frame= cap.read()
