@@ -118,11 +118,11 @@ class VideoStream:
         self.f1.grid(row = 3, column = 1)
 
         
-        self.button = tki.Button(self.f1, text = 'Start Video Recording', width = 25, command =self.record_flag)
+        self.button = tki.Button(self.f1, text = 'Start Video Recording', width = 25, pady = 20, command =self.record_flag)
         self.button.pack(side="top")
         #self.button.grid(row = 2, column = 0)
         
-        self.button1 = tki.Button(self.f1, text = 'Display Real-time Orientation', width = 25, command = self.theCall)
+        self.button1 = tki.Button(self.f1, text = 'Start Magentic Tracking', width = 25, command = self.theCall)
         self.button1.pack(side="top")
 
         #self.button1.grid(row = 3, column = 1)
@@ -181,8 +181,12 @@ class VideoStream:
                             self.writer1.write(frame)
                         elif panel == "2":
                             self.writer2.write(frame)
-                    
-                    frame = imutils.resize(frame, width=525)
+
+                    if panel == '3':
+                        frame = imutils.resize(frame, width=500)
+
+                    else:
+                        frame = imutils.resize(frame, width=525)
                     # OpenCV represents images in BGR order; however PIL
                     # represents images in RGB order, so we need to swap
                     # the channels, then convert to PIL and ImageTk format
@@ -198,21 +202,22 @@ class VideoStream:
                         if acquired:
                             # if the panel is not None, we need to initialize it
                             if self.mypanels[panel] is None and panel =='1':
+                                
                                 self.mypanels[panel] = tki.Label(image=image)
                                 self.mypanels[panel].image = image
-                                self.mypanels[panel].grid(row = 1, column = 0)
-        #                        self.mypanels[panel].pack(side="left", padx=10, pady=10)
+                                self.mypanels[panel].grid(row = 1, column = 0, pady = 10)
+                                
                                 
                             elif self.mypanels[panel] is None and panel =='2':
                                 self.mypanels[panel] = tki.Label(image=image)
                                 self.mypanels[panel].image = image
-                                self.mypanels[panel].grid(row = 1, column = 1)
+                                self.mypanels[panel].grid(row = 1, column = 1, pady = 10)
         #                        self.mypanels[panel].pack(side="right", padx=10, pady=10)
                             
                             elif self.mypanels[panel] is None and panel =='3':
                                 self.mypanels[panel] = tki.Label(image=image)
                                 self.mypanels[panel].image = image
-                                self.mypanels[panel].grid(row = 3, column = 0)
+                                self.mypanels[panel].grid(row = 3, column = 0, pady = 10)
                     
                             # otherwise, simply update the panel
                             else:
@@ -262,15 +267,18 @@ class VideoStream:
     def render_ids_3d(
         self, render_image, skeletons_2d, depth_map, depth_intrinsic, joint_confidence
     ):
+        zeroList = ["0,0,0"]
         thickness = 1
         text_color = (255, 255, 255)
         rows, cols, channel = render_image.shape[:3]
         distance_kernel_size = 5
+        intermediateSkeleJoint =[]
         # calculate 3D keypoints and display them
         for skeleton_index in range(len(skeletons_2d)):
             skeleton_2D = skeletons_2d[skeleton_index]
             joints_2D = skeleton_2D.joints
             did_once = False
+            #joint index corresponds to joint
             for joint_index in range(len(joints_2D)):
                 if did_once == False:
                     cv2.putText(
@@ -284,6 +292,7 @@ class VideoStream:
                     )
                     did_once = True
                 # check if the joint was detected and has valid coordinate
+                # print("[0, 0, 0]", )
                 if skeleton_2D.confidences[joint_index] > joint_confidence:
                     distance_in_kernel = []
                     low_bound_x = max(
@@ -319,7 +328,15 @@ class VideoStream:
                             depth_intrinsic, depth_pixel, median_distance
                         )
                         point_3d = np.round([float(i) for i in point_3d], 3)
+                        #appends the calculated joint to the 3D value
+                        
+
                         point_str = [str(x) for x in point_3d]
+                        #this part combines all into a single string
+                        mySeparator = ","
+                        intermediateSkeleJoint = np.append(intermediateSkeleJoint, mySeparator.join(point_str) )
+                        
+                        #print(point_str, ",")
                         cv2.putText(
                             render_image,
                             str(point_3d),
@@ -329,6 +346,15 @@ class VideoStream:
                             text_color,
                             thickness,
                         )
+                    else:
+                        #print("[0,0,0]")
+                        intermediateSkeleJoint =np.append(intermediateSkeleJoint, zeroList)
+                else:
+                    #print(zeroList)
+                    intermediateSkeleJoint = np.append(intermediateSkeleJoint, zeroList)
+            #timestamp
+            intermediateSkeleJoint = np.append(intermediateSkeleJoint, str(time.time()))
+            self.dataFrame.append(intermediateSkeleJoint)
 
                 
                 
@@ -429,7 +455,7 @@ time.sleep(2)
 
 
 ### CAMERA 2 (haedmount Feed)
-print("initatiating headmount cam...", end =' ')
+print("initiating headmount cam...", end =' ')
 vs2 = cv2.VideoCapture(cv2.CAP_DSHOW)
 #NOTE: open(1) opens the Microsoft LifeCam Cinema HD USB webcam 
 #NOTE: open(2) opens the RealSense USB camera connection 
