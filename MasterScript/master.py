@@ -88,7 +88,8 @@ class VideoStream:
         
         # initialize the root window and image panel
         self.root = tki.Tk()
-        self.root.configure(background = 'dark grey')
+        self.root.configure(background = 'grey')
+        self.root.resizable(False, False)
         self.panel1 = None
         self.panel2 = None
         self.panel3 = None
@@ -110,22 +111,25 @@ class VideoStream:
         # by the movement of mouse.
         #style.map('TButton', foreground = [('active', '! disabled', 'green')], background = [('active', 'black')])
         
-        tki.Label(self.root, text = 'Ultrasound Video', font =('Helvetica', 10, 'bold')).grid(row = 0, column = 0, padx=20, pady=10)
-        tki.Label(self.root, text = 'Head-Mounted Feed', font =('Helvetica', 10, 'bold')).grid(row = 0, column = 1,  padx=20, pady=10)
-        tki.Label(self.root, text = 'Skeletal Tracking', font =('Helvetica', 10, 'bold')).grid(row = 2, column= 0,  padx=20, pady=10)
+        tki.Label(self.root, text = 'Ultrasound Video', font =('Helvetica', 10, 'bold')).grid(row = 0, column = 1, padx=20, pady=10)
+        tki.Label(self.root, text = 'Head-Mounted Feed', font =('Helvetica', 10, 'bold')).grid(row = 0, column = 2,  padx=20, pady=10)
+        tki.Label(self.root, text = 'Skeletal Tracking', font =('Helvetica', 10, 'bold')).grid(row = 2, column= 1,  padx=20, pady=10)
 
-        self.f1 = tki.Frame(self.root)
-        self.f1.grid(row = 3, column = 1)
+        self.f1 = tki.Frame(self.root, borderwidth = 1)
+        self.f1.grid(row = 1, column = 0, padx = 2)
 
         
-        self.button = tki.Button(self.f1, text = 'Start Video Recording', width = 25, pady = 20, command =self.record_flag)
+        self.button = tki.Button(self.f1, text = 'Start Video Recording', width = 25, command =self.record_flag)
         self.button.pack(side="top")
         #self.button.grid(row = 2, column = 0)
         
         self.button1 = tki.Button(self.f1, text = 'Start Magentic Tracking', width = 25, command = self.theCall)
         self.button1.pack(side="top")
 
-        #self.button1.grid(row = 3, column = 1)
+        
+        #separator = Separator(self.root, orient='vertical').grid(column=0, row=0, rowspan=4, sticky='ns', ipadx=2)
+        separator = Separator(self.root, orient = 'vertical')
+        separator.place( x=190, y=0, relwidth=0.005, relheight=1)
 
 
        #**************************************************************
@@ -205,19 +209,19 @@ class VideoStream:
                                 
                                 self.mypanels[panel] = tki.Label(image=image)
                                 self.mypanels[panel].image = image
-                                self.mypanels[panel].grid(row = 1, column = 0, pady = 10)
+                                self.mypanels[panel].grid(row = 1, column = 1)
                                 
                                 
                             elif self.mypanels[panel] is None and panel =='2':
                                 self.mypanels[panel] = tki.Label(image=image)
                                 self.mypanels[panel].image = image
-                                self.mypanels[panel].grid(row = 1, column = 1, pady = 10)
+                                self.mypanels[panel].grid(row = 1, column = 2)
         #                        self.mypanels[panel].pack(side="right", padx=10, pady=10)
                             
                             elif self.mypanels[panel] is None and panel =='3':
                                 self.mypanels[panel] = tki.Label(image=image)
                                 self.mypanels[panel].image = image
-                                self.mypanels[panel].grid(row = 3, column = 0, pady = 10)
+                                self.mypanels[panel].grid(row = 3, column = 1)
                     
                             # otherwise, simply update the panel
                             else:
@@ -366,10 +370,10 @@ class VideoStream:
         width= int(self.vs1.get(cv2.CAP_PROP_FRAME_WIDTH))
         height= int(self.vs1.get(cv2.CAP_PROP_FRAME_HEIGHT))
         #start the writer's for saving the video
-        self.writer1= cv2.VideoWriter('UltrasoundVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
+        self.writer1= cv2.VideoWriter('projectOut/UltrasoundVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
         width= int(self.vs2.get(cv2.CAP_PROP_FRAME_WIDTH))
         height= int(self.vs2.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.writer2= cv2.VideoWriter('HeadmountVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
+        self.writer2= cv2.VideoWriter('projectOut/HeadmountVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
         self.record = True
         print("starting recording")
     
@@ -383,7 +387,7 @@ class VideoStream:
 
         print("saving skeletal data to csv...")
         #insert header to start of the dataFrame
-        file = open('skeleData.csv', 'w', newline ="")
+        file = open('projectOut/skeleData.csv', 'w', newline ="")
 
         with file: 
             write = csv.writer(file)
@@ -446,7 +450,7 @@ print("warming up ultrasound feed...", end = "")
 ### CAMERA 1 (Ultrasound)
 vs1 = cv2.VideoCapture()
 #below is the index (0) to get ultrasound video feed
-if vs1.open(5) == True:
+if vs1.open(0) == True:
     print(" ultrasound feed successfully opened")
 else:
     print(" ultrasound feed did not open")
@@ -460,7 +464,7 @@ vs2 = cv2.VideoCapture(cv2.CAP_DSHOW)
 #NOTE: open(1) opens the Microsoft LifeCam Cinema HD USB webcam 
 #NOTE: open(2) opens the RealSense USB camera connection 
 
-if vs2.open(0) == True:
+if vs2.open(1) == True:
     print(" headmounted camera started")
 else: 
     print("headmounted camera did not open")

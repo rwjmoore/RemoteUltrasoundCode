@@ -26,7 +26,7 @@ set(hFigure, 'MenuBar', 'none');
 set(hFigure, 'ToolBar', 'none');
 
 % Create a 3-D plot
-ax = axes('XLim', [-200 200], 'YLim', [-200 200], 'ZLim', [-500 200]);
+ax = axes('XLim', [-500 500], 'YLim', [-500 500], 'ZLim', [-500 200]);
 xlabel(ax, 'X-axis');
 ylabel(ax, 'Y-axis');
 zlabel(ax, 'Z-axis');
@@ -45,7 +45,7 @@ p(1) = patch(top(:,1), top(:,2), top(:,3), color);
 
 bottom = [-1 -1 0; 1 -1 0; 1 1 0; -1 1 0];
 bottom = bottom*100;
-p(2) = patch(bottom(:,1), bottom(:,2), bottom(:,3), color);
+p(2) = patch(bottom(:,1), bottom(:,2), bottom(:,3), [1, 0, 0]);
 
 front = [1 -1 0; 1 1 0; 1 1 1; 1 -1 1];
 front = front*100;
@@ -181,7 +181,7 @@ set(p, 'Parent', tfObject); %sets the parent of 'p' to the tfObject
     
     aurora_device.stopTracking();
     
-    save2File(rot1, [], trans1, [], error, time, sensorStat, frame, "Upper Atrial");
+    save2File(rot1, [], trans1, [], error, time, sensorStat, frame, "C:\Users\randy\Documents\GitHub\RemoteUltrasoundCode\MasterScript\projectOut\Upper Atrial.csv");
     
 
 

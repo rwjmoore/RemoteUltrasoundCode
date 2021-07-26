@@ -6,13 +6,13 @@ import time
 #cap.open(0, cv2.CAP_AVFOUNDATION) this is for MAC!
 #cap.open(5) Works for US when connected into the USB3.0 port 
 
-#0 opens Lidar cam 
-#1 
+#0 opens Lidar cam / ultrasound /ultrasound
+#1 lidar / lidar / lidar
 #2
-#3 normal cam
-#4 opens stereo depth
-#5 ultrasound
-cap.open(0)
+#3 normal cam / / nothing 
+#4 opens stereo depth / normal/ normal cam
+#5 ultrasound / steroe / sterepo
+cap.open(5)
 width= int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height= int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 

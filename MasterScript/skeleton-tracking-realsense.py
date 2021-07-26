@@ -107,7 +107,7 @@ if __name__ == "__main__":
         depth_intrinsic = depth.profile.as_video_stream_profile().intrinsics
 
         # Initialize the cubemos api with a valid license key in default_license_dir()
-        skeletrack = skeletontracker(cloud_tracking_api_key="prvBNxcOwU867y7pFn2dM2brA5kFzllIaBwWVcTc")
+        skeletrack = skeletontracker(cloud_tracking_api_key='') #"prvBNxcOwU867y7pFn2dM2brA5kFzllIaBwWVcTc"
         joint_confidence = 0.2
 
         # Create window for initialisation
