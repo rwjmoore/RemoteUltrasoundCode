@@ -57,7 +57,9 @@ class VideoStream:
         self.thread1 = None
         self.stopEvent = None
         self.dataFrame = [["Nose", "Center of Chest", "right shoulder", "right elbow", "right wrist", "left shoulder", "left elbow", "left wrist", "right hip", "right knee", "right ankle", "left hip", "left knee", "right ankle", "right eye", "left eye", "right ear", "left ear", "time"]]
-
+        self.i = 0
+        self.skeletons = 0
+        self.skeletonrate = 10
 
         #SKELETON TRACKING STUFF
         print("initiating skeletal tracking pipeline")
@@ -103,7 +105,7 @@ class VideoStream:
         self.mypanels = {"1" : self.panel1, "2": self.panel2, "3": self.panel3}
         
         
-        #Tkinter Stuff
+         #Tkinter Stuff
         #*************************************************************
         #self.root.geometry('900x300')
         
@@ -120,7 +122,7 @@ class VideoStream:
         
         tki.Label(self.root, text = 'Ultrasound Video', font =('Helvetica', 10, 'bold')).grid(row = 0, column = 1, padx=20, pady=10)
         tki.Label(self.root, text = 'Head-Mounted Feed', font =('Helvetica', 10, 'bold')).grid(row = 0, column = 2,  padx=20, pady=10)
-        tki.Label(self.root, text = 'Skeletal Tracking', font =('Helvetica', 10, 'bold')).grid(row = 2, column= 1,  padx=20, pady=10)
+        tki.Label(self.root, text = 'Skeletal Tracking', font =('Helvetica', 10, 'bold')).grid(row = 3, column= 1,  padx=20, pady=10)
 
         self.f1 = tki.Frame(self.root, borderwidth = 1)
         self.f1.grid(row = 1, column = 0, padx = 2)
@@ -133,13 +135,14 @@ class VideoStream:
         self.button1 = tki.Button(self.f1, text = 'Start Magentic Tracking', width = 25, command = self.theCall)
         self.button1.pack(side="top")
 
+        self.button2 = tki.Button(self.f1, text = 'Initiate Zoom Meeting', width = 25, command = self.zoomFlag)
+        self.button2.pack(side="top")
+
         
         #separator = Separator(self.root, orient='vertical').grid(column=0, row=0, rowspan=4, sticky='ns', ipadx=2)
         separator = Separator(self.root, orient = 'vertical')
         separator.place( x=190, y=0, relwidth=0.005, relheight=1)
-
-
-       #**************************************************************
+#*********************************************************************
         
         
         # start a THREAD that constantly pools the video sensor for
@@ -260,16 +263,19 @@ class VideoStream:
         # Convert images to numpy arrays
         depth_image = np.asanyarray(self.depth.get_data())
         color_image = np.asanyarray(color.get_data())
-
-        # perform inference and update the tracking id
-        skeletons = self.skeletrack.track_skeletons(color_image)
-
-        # render the skeletons on top of the acquired image and display it
         color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
-        cm.render_result(skeletons, color_image, self.joint_confidence)
+        if self.i %self.skeletonrate == 0 or self.i == 0:
+            
+            # perform inference and update the tracking id
+            self.skeletons = self.skeletrack.track_skeletons(color_image)
+            
+            # render the skeletons on top of the acquired image and display it
+
+        cm.render_result(self.skeletons, color_image, self.joint_confidence)
         self.render_ids_3d(
-            color_image, skeletons, self.depth, self.depth_intrinsic, self.joint_confidence
-        )
+                color_image, self.skeletons, self.depth, self.depth_intrinsic, self.joint_confidence
+            )
+        self.i = self.i+1
         return color_image
 
 
@@ -411,7 +417,13 @@ class VideoStream:
         self.record = True
         print("starting recording")
     
-                
+    def zoomFlag(self):
+        self.button2.configure(bg='red',)
+        import webbrowser
+
+        webbrowser.open('https://ucalgary.zoom.us/j/6948856500')  # Go to zoom meeting
+    
+    
     def onClose(self):
         # set the stop event, cleanup the camera, and allow the rest of
         # the quit process to continue
@@ -448,26 +460,35 @@ class VideoStream:
     
     
     #FUNCTION: To call the Matlab Engine to display real time orientation of ultrasound probe
-    def pythonMatlabCall(self):
+    def pythonMatlabCall(self):    
+        self.button1.configure(bg='red',)
+
         print("starting matlab engine....")
         eng = matlab.engine.start_matlab()
         print("engine started")
+        segment = input("Input Segment Name: ")
         try:
-            eng.realTimeOrientationSensorSAVE(nargout=0) #simple_script is the name of the .m file!
-            
+            #eng.realTimeOrientationSensorSAVEF(segment, nargout=0) 
+
+            eng.realTimeOrientation(nargout=0) #testing script
+
         except:
-            print("there was an error when stopping matlab script")
+            print("there was an error when stopping matlab script...")
             print("shutting down matlab engine")
+
             eng.quit()
-            
+
+            self.button1.configure(bg='white',)
+  
         else:
             print("shutting down matlab engine")
             eng.quit()
+            self.button1.configure(bg='white',)
+
             
     #PURPOSE: To start a new thread for the matlab script to run
     def theCall(self):
-        print("starting data collection")
-        self.threadMAT = threading.Thread(target=self.trial, args=())
+        self.threadMAT = threading.Thread(target=self.pythonMatlabCall, args=())
         
         self.threadMAT.setDaemon(True)
         
