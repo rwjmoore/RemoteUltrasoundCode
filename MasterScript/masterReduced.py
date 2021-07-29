@@ -53,40 +53,10 @@ class VideoStream:
         self.frame1 = None
         self.thread1 = None
         self.stopEvent = None
-        #for skeleton data
         self.dataFrame = [["Nose", "Center of Chest", "right shoulder", "right elbow", "right wrist", "left shoulder", "left elbow", "left wrist", "right hip", "right knee", "right ankle", "left hip", "left knee", "right ankle", "right eye", "left eye", "right ear", "left ear", "time"]]
-        self.i = 0
-        self.skeletons = 0
-        self.skeletonrate = 10
-        #for hand tracking data
-        self.myHands = [["hand1"], ["hand2"]]
 
-        #SKELETON TRACKING STUFF
-        print("initiating skeletal tracking pipeline")
-        try:
-                # Configure depth and color streams of the intel realsense
-                self.config = rs.config()
-                self.config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
-                self.config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
 
-                # Start the realsense pipeline
-                self.pipeline = rs.pipeline()
-                self.pipeline.start()
-
-                # Create align object to align depth frames to color frames
-                self.align = rs.align(rs.stream.color)
-
-                # Get the intrinsics information for calculation of 3D point
-                self.unaligned_frames = self.pipeline.wait_for_frames()
-                self.frames = self.align.process(self.unaligned_frames)
-                self.depth =self.frames.get_depth_frame()
-                self.depth_intrinsic = self.depth.profile.as_video_stream_profile().intrinsics
-
-                # Initialize the cubemos api with a valid license key in default_license_dir()
-                self.skeletrack = skeletontracker(cloud_tracking_api_key="")
-                self.joint_confidence = 0.2
-        except:
-            print("exception occured in skeleton tracking initialization")
+       
 
 
 
@@ -118,8 +88,7 @@ class VideoStream:
         #style.map('TButton', foreground = [('active', '! disabled', 'green')], background = [('active', 'black')])
         
         tki.Label(self.root, text = 'Ultrasound Video', font =('Helvetica', 10, 'bold')).grid(row = 0, column = 1, padx=20, pady=10)
-        tki.Label(self.root, text = 'Head-Mounted Feed', font =('Helvetica', 10, 'bold')).grid(row = 0, column = 2,  padx=20, pady=10)
-        tki.Label(self.root, text = 'Skeletal Tracking', font =('Helvetica', 10, 'bold')).grid(row = 3, column= 1,  padx=20, pady=10)
+        tki.Label(self.root, text = 'Head-Mounted Feed', font =('Helvetica', 10, 'bold')).grid(row = 2, column =1 ,  padx=20, pady=10)
 
         self.f1 = tki.Frame(self.root, borderwidth = 1)
         self.f1.grid(row = 1, column = 0, padx = 2)
@@ -225,7 +194,7 @@ class VideoStream:
                             elif self.mypanels[panel] is None and panel =='2':
                                 self.mypanels[panel] = tki.Label(image=image)
                                 self.mypanels[panel].image = image
-                                self.mypanels[panel].grid(row = 1, column = 2)
+                                self.mypanels[panel].grid(row = 3, column = 1)
         #                        self.mypanels[panel].pack(side="right", padx=10, pady=10)
                             
                             elif self.mypanels[panel] is None and panel =='3':
@@ -261,19 +230,16 @@ class VideoStream:
         # Convert images to numpy arrays
         depth_image = np.asanyarray(self.depth.get_data())
         color_image = np.asanyarray(color.get_data())
-        color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
-        if self.i %self.skeletonrate == 0 or self.i == 0:
-            
-            # perform inference and update the tracking id
-            self.skeletons = self.skeletrack.track_skeletons(color_image)
-            
-            # render the skeletons on top of the acquired image and display it
 
-        cm.render_result(self.skeletons, color_image, self.joint_confidence)
+        # perform inference and update the tracking id
+        skeletons = self.skeletrack.track_skeletons(color_image)
+
+        # render the skeletons on top of the acquired image and display it
+        color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
+        cm.render_result(skeletons, color_image, self.joint_confidence)
         self.render_ids_3d(
-                color_image, self.skeletons, self.depth, self.depth_intrinsic, self.joint_confidence
-            )
-        self.i = self.i+1
+            color_image, skeletons, self.depth, self.depth_intrinsic, self.joint_confidence
+        )
         return color_image
 
 
@@ -425,7 +391,6 @@ class VideoStream:
         
 
         #close the pipeline for skeleton tracking 
-        self.pipeline.stop()
         cv2.destroyAllWindows()
 
         print("capture stream released")

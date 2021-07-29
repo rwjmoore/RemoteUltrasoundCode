@@ -31,6 +31,9 @@ import matlab.engine
 import sys
 import faulthandler
 import csv
+from NDI_PyTrack import NDI_pytrack
+import mediapipe as mp
+
 
 """SKELETON TRACKING FUNCTIONS"""
 
@@ -53,13 +56,8 @@ class VideoStream:
         self.frame1 = None
         self.thread1 = None
         self.stopEvent = None
-        #for skeleton data
         self.dataFrame = [["Nose", "Center of Chest", "right shoulder", "right elbow", "right wrist", "left shoulder", "left elbow", "left wrist", "right hip", "right knee", "right ankle", "left hip", "left knee", "right ankle", "right eye", "left eye", "right ear", "left ear", "time"]]
-        self.i = 0
-        self.skeletons = 0
-        self.skeletonrate = 10
-        #for hand tracking data
-        self.myHands = [["hand1"], ["hand2"]]
+
 
         #SKELETON TRACKING STUFF
         print("initiating skeletal tracking pipeline")
@@ -88,13 +86,16 @@ class VideoStream:
         except:
             print("exception occured in skeleton tracking initialization")
 
-
+        #hand tracking stuff
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.mp_hands = mp.solutions.hands
+        self.drawing_styles = mp.solutions.drawing_styles
+        self.hands = self.mp_hands.Hands(min_detection_confidence=0.5,min_tracking_confidence=0.5)
 
         
         # initialize the root window and image panel
         self.root = tki.Tk()
         self.root.configure(background = 'grey')
-        self.root.state('zoomed')
         self.root.resizable(False, False)
         self.panel1 = None
         self.panel2 = None
@@ -119,7 +120,7 @@ class VideoStream:
         
         tki.Label(self.root, text = 'Ultrasound Video', font =('Helvetica', 10, 'bold')).grid(row = 0, column = 1, padx=20, pady=10)
         tki.Label(self.root, text = 'Head-Mounted Feed', font =('Helvetica', 10, 'bold')).grid(row = 0, column = 2,  padx=20, pady=10)
-        tki.Label(self.root, text = 'Skeletal Tracking', font =('Helvetica', 10, 'bold')).grid(row = 3, column= 1,  padx=20, pady=10)
+        tki.Label(self.root, text = 'Skeletal Tracking', font =('Helvetica', 10, 'bold')).grid(row = 2, column= 1,  padx=20, pady=10)
 
         self.f1 = tki.Frame(self.root, borderwidth = 1)
         self.f1.grid(row = 1, column = 0, padx = 2)
@@ -131,9 +132,6 @@ class VideoStream:
         
         self.button1 = tki.Button(self.f1, text = 'Start Magentic Tracking', width = 25, command = self.theCall)
         self.button1.pack(side="top")
-
-        self.button2 = tki.Button(self.f1, text = 'Initiate Zoom Meeting', width = 25, command = self.zoomFlag)
-        self.button2.pack(side="top")
 
         
         #separator = Separator(self.root, orient='vertical').grid(column=0, row=0, rowspan=4, sticky='ns', ipadx=2)
@@ -169,6 +167,8 @@ class VideoStream:
         
         
         
+        
+    
     def videoLoop(self, vs, panel):
     
             font = cv2.FONT_HERSHEY_SIMPLEX
@@ -181,6 +181,8 @@ class VideoStream:
                     # have a maximum width of 300 pixels
                     if panel =="3":
                         frame = self.skeletonOverlay()
+                    elif panel =="2":
+                        frame = self.hand_tracking(vs2)
                     else:
                         ret, frame = vs.read()
                     
@@ -194,10 +196,7 @@ class VideoStream:
                             self.writer2.write(frame)
 
                     if panel == '3':
-                        frame = imutils.resize(frame, width=400)
-
-                    elif panel =='1':
-                        frame = imutils.resize(frame, width = 625)
+                        frame = imutils.resize(frame, width=500)
 
                     else:
                         frame = imutils.resize(frame, width=525)
@@ -231,7 +230,7 @@ class VideoStream:
                             elif self.mypanels[panel] is None and panel =='3':
                                 self.mypanels[panel] = tki.Label(image=image)
                                 self.mypanels[panel].image = image
-                                self.mypanels[panel].grid(row = 2, column = 1)
+                                self.mypanels[panel].grid(row = 3, column = 1)
                     
                             # otherwise, simply update the panel
                             else:
@@ -261,19 +260,16 @@ class VideoStream:
         # Convert images to numpy arrays
         depth_image = np.asanyarray(self.depth.get_data())
         color_image = np.asanyarray(color.get_data())
-        color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
-        if self.i %self.skeletonrate == 0 or self.i == 0:
-            
-            # perform inference and update the tracking id
-            self.skeletons = self.skeletrack.track_skeletons(color_image)
-            
-            # render the skeletons on top of the acquired image and display it
 
-        cm.render_result(self.skeletons, color_image, self.joint_confidence)
+        # perform inference and update the tracking id
+        skeletons = self.skeletrack.track_skeletons(color_image)
+
+        # render the skeletons on top of the acquired image and display it
+        color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
+        cm.render_result(skeletons, color_image, self.joint_confidence)
         self.render_ids_3d(
-                color_image, self.skeletons, self.depth, self.depth_intrinsic, self.joint_confidence
-            )
-        self.i = self.i+1
+            color_image, skeletons, self.depth, self.depth_intrinsic, self.joint_confidence
+        )
         return color_image
 
 
@@ -373,8 +369,33 @@ class VideoStream:
             intermediateSkeleJoint = np.append(intermediateSkeleJoint, str(time.time()))
             self.dataFrame.append(intermediateSkeleJoint)
 
-                
-                
+    def hand_tracking(self, cap):
+        success, image = cap.read()
+        image_height, image_width, _ = image.shape
+        if not success:
+            return 0
+        # Flip the image horizontally for a later selfie-view display, and convert
+        # the BGR image to RGB.
+        image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+        # To improve performance, optionally mark the image as not writeable to
+        # pass by reference.
+        image.flags.writeable = False
+        results = self.hands.process(image)
+        # Draw the hand annotations on the image.
+        image.flags.writeable = True
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+               
+        
+      #this appears to be the coordinates for finger tips in pixels? 
+        
+                self.mp_drawing.draw_landmarks(
+                image, hand_landmarks, self.mp_hands.HAND_CONNECTIONS,
+                self.drawing_styles.get_default_hand_landmark_style(),
+                self.drawing_styles.get_default_hand_connection_style())
+        return image
+
     def record_flag(self):
         #PURPOSE: To set the record_flag to True on button press so that recording can begin
         
@@ -383,18 +404,12 @@ class VideoStream:
         width= int(self.vs1.get(cv2.CAP_PROP_FRAME_WIDTH))
         height= int(self.vs1.get(cv2.CAP_PROP_FRAME_HEIGHT))
         #start the writer's for saving the video
-        self.writer1= cv2.VideoWriter('projectOut/UltrasoundVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
+        self.writer1= cv2.VideoWriter('UltrasoundVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
         width= int(self.vs2.get(cv2.CAP_PROP_FRAME_WIDTH))
         height= int(self.vs2.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.writer2= cv2.VideoWriter('projectOut/HeadmountVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
+        self.writer2= cv2.VideoWriter('HeadmountVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
         self.record = True
         print("starting recording")
-
-    def zoomFlag(self):
-        self.button2.configure(bg='red',)
-        import webbrowser
-
-        webbrowser.open('https://ucalgary.zoom.us/j/6948856500')  # Go to zoom meeting
     
                 
     def onClose(self):
@@ -406,7 +421,7 @@ class VideoStream:
 
         print("saving skeletal data to csv...")
         #insert header to start of the dataFrame
-        file = open('projectOut/skeleData.csv', 'w', newline ="")
+        file = open('skeleData.csv', 'w', newline ="")
 
         with file: 
             write = csv.writer(file)
@@ -434,40 +449,38 @@ class VideoStream:
     
     #FUNCTION: To call the Matlab Engine to display real time orientation of ultrasound probe
     def pythonMatlabCall(self):
-        self.button1.configure(bg='red',)
-
         print("starting matlab engine....")
         eng = matlab.engine.start_matlab()
         print("engine started")
-        segment = input("Input Segment Name: ")
         try:
-            #eng.realTimeOrientationSensorSAVEF(segment, nargout=0) #simple_script is the name of the .m file!
-
-            eng.realTimeOrientation(nargout=0) #simple_script is the name of the .m file!
-
+            eng.realTimeOrientationSensorSAVE(nargout=0) #simple_script is the name of the .m file!
+            
         except:
-            print("there was an error when stopping matlab script...")
+            print("there was an error when stopping matlab script")
             print("shutting down matlab engine")
-
             eng.quit()
-
-            self.button1.configure(bg='white',)
-  
+            
         else:
             print("shutting down matlab engine")
             eng.quit()
-            self.button1.configure(bg='white',)
-
             
     #PURPOSE: To start a new thread for the matlab script to run
     def theCall(self):
-        self.threadMAT = threading.Thread(target=self.pythonMatlabCall, args=())
+        print("starting data collection")
+        self.threadMAT = threading.Thread(target=self.trial, args=())
         
         self.threadMAT.setDaemon(True)
         
         self.threadMAT.start()
     
-    
+    def trial(self):
+        while(1):
+            start = time.time()
+
+            x = 1+ 2
+            end = time.time()
+            print(end - start)
+            time.sleep(0.00000000000000001)
     
     
 ##################### BODY OF THE CODE ###########################
@@ -477,9 +490,9 @@ faulthandler.enable()
 print("warming up ultrasound feed...", end = "")
 
 ### CAMERA 1 (Ultrasound)
-vs1 = cv2.VideoCapture(1)
+vs1 = cv2.VideoCapture()
 #below is the index (0) to get ultrasound video feed
-if vs1.open(3) == True: #make 0
+if vs1.open(3) == True:
     print(" ultrasound feed successfully opened")
 else:
     print(" ultrasound feed did not open")
@@ -489,11 +502,11 @@ time.sleep(2)
 
 ### CAMERA 2 (haedmount Feed)
 print("initiating headmount cam...", end =' ')
-vs2 = cv2.VideoCapture(cv2.CAP_DSHOW)
+vs2 = cv2.VideoCapture()
 #NOTE: open(1) opens the Microsoft LifeCam Cinema HD USB webcam 
 #NOTE: open(2) opens the RealSense USB camera connection 
 
-if vs2.open(0) == True:#make 1
+if vs2.open(0) == True:
     print(" headmounted camera started")
 else: 
     print("headmounted camera did not open")

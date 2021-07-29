@@ -71,7 +71,7 @@ def render_ids_3d(
                     )
                     point_3d = np.round([float(i) for i in point_3d], 3)
                     point_str = [str(x) for x in point_3d]
-                    print(point_str, ",")
+                   # print(point_str, ",")
                     cv2.putText(
                         render_image,
                         str(point_3d),
@@ -113,7 +113,7 @@ if __name__ == "__main__":
         # Create window for initialisation
         window_name = "cubemos skeleton tracking with realsense D400 series"
         cv2.namedWindow(window_name, cv2.WINDOW_NORMAL + cv2.WINDOW_KEEPRATIO)
-
+        i = 0
         while True:
             # Create a pipeline object. This object configures the streaming camera and owns it's handle
             unaligned_frames = pipeline.wait_for_frames()
@@ -126,16 +126,21 @@ if __name__ == "__main__":
             # Convert images to numpy arrays
             depth_image = np.asanyarray(depth.get_data())
             color_image = np.asanyarray(color.get_data())
-
-            # perform inference and update the tracking id
-            skeletons = skeletrack.track_skeletons(color_image)
-           
-            # render the skeletons on top of the acquired image and display it
             color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
+            if i%3 == 0:
+                print("i is")
+                print(i)
+                # perform inference and update the tracking id
+                skeletons = skeletrack.track_skeletons(color_image)
+                
+                # render the skeletons on top of the acquired image and display it
+
             cm.render_result(skeletons, color_image, joint_confidence)
             render_ids_3d(
-                color_image, skeletons, depth, depth_intrinsic, joint_confidence
-            )
+                    color_image, skeletons, depth, depth_intrinsic, joint_confidence
+                )
+            i = i+1
+
             cv2.imshow(window_name, color_image)
             if cv2.waitKey(1) == 27:
                 break

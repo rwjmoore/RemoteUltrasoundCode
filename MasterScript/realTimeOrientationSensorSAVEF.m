@@ -1,6 +1,8 @@
-%This scripts runs the collection of coordinates for the magnetic tracker and saves the data to a .txt file. This is designed for Python GUI integration 
+%This is the function version of realTimeOrientationSensorSAVE
+%runs the collection of coordinates for the magnetic tracker and saves the data to a .txt file. This is designed for Python GUI integration 
+function [] = realTimeOrientationSensorSAVEF(segment)
 
-    clear;
+    segment
     fprintf("starting setup \n");
     aurora_device = AuroraSetup()
     fprintf("setup complete \n");
@@ -77,6 +79,8 @@ p(8) = X;
 
 % Set the object transparency
 alpha(0.8)
+
+
 %UNFINISHED - ADD THIS PART TWEAK CODE TO GET IT TO RUN WITH MY STUFF 
 
 %Now use a Transform object to handle the rotations 
@@ -186,12 +190,10 @@ set(p, 'Parent', tfObject); %sets the parent of 'p' to the tfObject
        
     
     aurora_device.stopTracking();
-    segment = "UpperAtrial";
     dir = "C:\Users\randy\Documents\GitHub\RemoteUltrasoundCode\MasterScript\projectOut\";
     filetype = ".csv";
-    filepath = append(dir, segment, filetype);
+    filepath = append(dir, char(segment), filetype);
     save2File(rot1, [], trans1, [], error, time, sensorStat, frame, filepath);
-%     save2File(rot1, [], trans1, [], error, time, sensorStat, frame, "C:\Users\randy\Documents\GitHub\RemoteUltrasoundCode\MasterScript\projectOut\Upper Atrial.csv");
-    
+end
 
 

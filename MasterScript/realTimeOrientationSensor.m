@@ -15,7 +15,7 @@
 hFigure = figure('Name','US Probe Orientation','NumberTitle','off','Position',[845 268 500 540])
 set(hFigure, 'MenuBar', 'none');
 set(hFigure, 'ToolBar', 'none');
-
+WindowsAPI(hFigure, "TopMost")
 % Create a 3-D plot
 ax = axes('XLim', [-200 200], 'YLim', [-200 200], 'ZLim', [-500 200]);
 xlabel(ax, 'X-axis');
