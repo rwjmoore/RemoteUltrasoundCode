@@ -59,7 +59,7 @@ class VideoStream:
         self.dataFrame = [["Nose", "Center of Chest", "right shoulder", "right elbow", "right wrist", "left shoulder", "left elbow", "left wrist", "right hip", "right knee", "right ankle", "left hip", "left knee", "right ankle", "right eye", "left eye", "right ear", "left ear", "time"]]
         self.i = 0
         self.skeletons = 0
-        self.skeletonrate = 10
+        self.skeletonrate = 4
 
         #SKELETON TRACKING STUFF
         print("initiating skeletal tracking pipeline")
@@ -233,7 +233,7 @@ class VideoStream:
                             elif self.mypanels[panel] is None and panel =='3':
                                 self.mypanels[panel] = tki.Label(image=image)
                                 self.mypanels[panel].image = image
-                                self.mypanels[panel].grid(row = 3, column = 1)
+                                self.mypanels[panel].grid(row = 2, column = 1)
                     
                             # otherwise, simply update the panel
                             else:
