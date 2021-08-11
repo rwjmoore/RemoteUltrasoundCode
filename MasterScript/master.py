@@ -94,6 +94,7 @@ class VideoStream:
         # initialize the root window and image panel
         self.root = tki.Tk()
         self.root.configure(background = 'grey')
+        self.root.attributes("-fullscreen", True)
         self.root.state('zoomed')
         self.root.resizable(False, False)
         self.panel1 = None

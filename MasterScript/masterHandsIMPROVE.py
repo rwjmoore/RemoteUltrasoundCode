@@ -59,7 +59,9 @@ class VideoStream:
         self.dataFrame = [["Nose", "Center of Chest", "right shoulder", "right elbow", "right wrist", "left shoulder", "left elbow", "left wrist", "right hip", "right knee", "right ankle", "left hip", "left knee", "right ankle", "right eye", "left eye", "right ear", "left ear", "time"]]
         self.i = 0
         self.skeletons = 0
-        self.skeletonrate = 4
+        self.skeletonrate = 6
+        #dataframe for my hand data 
+        self.handData = [["hand1", "hand2", "class1", "class2", "time"]]
 
         #SKELETON TRACKING STUFF
         print("initiating skeletal tracking pipeline")
@@ -98,6 +100,10 @@ class VideoStream:
         # initialize the root window and image panel
         self.root = tki.Tk()
         self.root.configure(background = 'grey')
+        self.root.state('zoomed')
+
+        #self.root.attributes("-fullscreen", True)
+
         self.root.resizable(False, False)
         self.panel1 = None
         self.panel2 = None
@@ -200,6 +206,9 @@ class VideoStream:
 
                     if panel == '3':
                         frame = imutils.resize(frame, width=500)
+
+                    elif panel == '1':
+                        frame = imutils.resize(frame, width = 630)
 
                     else:
                         frame = imutils.resize(frame, width=525)
@@ -376,6 +385,9 @@ class VideoStream:
             self.dataFrame.append(intermediateSkeleJoint)
 
     def hand_tracking(self, cap):
+        #intermediate storage for hand
+        intermediateHand = []
+
         success, image = cap.read()
         image_height, image_width, _ = image.shape
         if not success:
@@ -390,9 +402,18 @@ class VideoStream:
         # Draw the hand annotations on the image.
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        #this is how you access label: results.multi_handedness[0].classification[0].label        
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
-               
+                if len(results.multi_hand_landmarks) == 1:
+                    intermediateHand = np.append(intermediateHand, hand_landmarks)
+                    intermediateHand = np.append(intermediateHand, 0)
+
+                else:
+                    intermediateHand = np.append(intermediateHand, hand_landmarks) 
+            
+                
         
       #this appears to be the coordinates for finger tips in pixels? 
         
@@ -400,6 +421,10 @@ class VideoStream:
                 image, hand_landmarks, self.mp_hands.HAND_CONNECTIONS,
                 self.drawing_styles.get_default_hand_landmark_style(),
                 self.drawing_styles.get_default_hand_connection_style())
+            for handed in results.multi_handedness:
+                intermediateHand = np.append(intermediateHand, handed)
+        intermediateHand = np.append(intermediateHand, str(time.time()))
+        self.handData.append(intermediateHand)
         return image
 
     def record_flag(self):
@@ -410,10 +435,10 @@ class VideoStream:
         width= int(self.vs1.get(cv2.CAP_PROP_FRAME_WIDTH))
         height= int(self.vs1.get(cv2.CAP_PROP_FRAME_HEIGHT))
         #start the writer's for saving the video
-        self.writer1= cv2.VideoWriter('UltrasoundVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
+        self.writer1= cv2.VideoWriter('projectOut/UltrasoundVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
         width= int(self.vs2.get(cv2.CAP_PROP_FRAME_WIDTH))
         height= int(self.vs2.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.writer2= cv2.VideoWriter('HeadmountVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
+        self.writer2= cv2.VideoWriter('projectOut/HeadmountVideo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
         self.record = True
         print("starting recording")
     
@@ -433,13 +458,20 @@ class VideoStream:
 
         print("saving skeletal data to csv...")
         #insert header to start of the dataFrame
-        file = open('skeleData.csv', 'w', newline ="")
+        file = open('projectOut/skeleData.csv', 'w', newline ="")
 
         with file: 
             write = csv.writer(file)
             write.writerows(self.dataFrame)
         
         print("...skeleton data saved successfully")
+
+        print("saving handtracking data to csv...")
+        file = open('projectOut/handData.csv', 'w', newline ="")
+        with file: 
+            write = csv.writer(file)
+            write.writerows(self.handData)
+
         if self.vs1.isOpened(): 
             self.vs1.release()
 
@@ -468,9 +500,9 @@ class VideoStream:
         print("engine started")
         segment = input("Input Segment Name: ")
         try:
-            #eng.realTimeOrientationSensorSAVEF(segment, nargout=0) 
+            eng.realTimeOrientationSensorSAVEF(segment, nargout=0) 
 
-            eng.realTimeOrientation(nargout=0) #testing script
+            #eng.realTimeOrientation(nargout=0) #testing script
 
         except:
             print("there was an error when stopping matlab script...")

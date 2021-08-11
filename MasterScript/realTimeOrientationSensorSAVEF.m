@@ -154,8 +154,8 @@ set(p, 'Parent', tfObject); %sets the parent of 'p' to the tfObject
                   
                 %for up on its side
                 transformMatrix(1, 4) = -1*trans(3);
-                transformMatrix(2, 4) = trans(2);
-                transformMatrix(3, 4) = 1*trans(1);
+                transformMatrix(2, 4) = 1*trans(2);
+                transformMatrix(3, 4) = -1*trans(1);
                 
                 
                 %for on the bottom, use this code instead and comment the
@@ -192,8 +192,9 @@ set(p, 'Parent', tfObject); %sets the parent of 'p' to the tfObject
     aurora_device.stopTracking();
     dir = "C:\Users\randy\Documents\GitHub\RemoteUltrasoundCode\MasterScript\projectOut\";
     filetype = ".csv";
-    filepath = append(dir, char(segment), filetype);
-    save2File(rot1, [], trans1, [], error, time, sensorStat, frame, filepath);
+    filepath = append(dir, char(segment), filetype);    
+    data = save2File(rot1, [], trans1, [], error, time, sensorStat, frame, filepath);
+    close(hFigure);
 end
 
 
