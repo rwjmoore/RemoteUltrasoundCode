@@ -29,7 +29,7 @@ set(hFigure, 'ToolBar', 'none');
 WindowAPI(hFigure, 'TopMost')
 
 % Create a 3-D plot
-ax = axes('XLim', [-500 500], 'YLim', [-500 500], 'ZLim', [-500 200]);
+ax = axes('XLim', [-500 500], 'YLim', [-500 500], 'ZLim', [-500 500]);
 xlabel(ax, 'X-axis');
 ylabel(ax, 'Y-axis');
 zlabel(ax, 'Z-axis');
@@ -155,7 +155,7 @@ set(p, 'Parent', tfObject); %sets the parent of 'p' to the tfObject
                 %for up on its side
                 transformMatrix(1, 4) = -1*trans(3);
                 transformMatrix(2, 4) = 1*trans(2);
-                transformMatrix(3, 4) = -1*trans(1);
+                transformMatrix(3, 4) = 1*trans(1);
                 
                 
                 %for on the bottom, use this code instead and comment the

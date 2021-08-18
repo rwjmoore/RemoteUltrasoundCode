@@ -12,7 +12,7 @@ import time
 #3 normal cam / / nothing 
 #4 opens stereo depth / normal/ normal cam
 #5 ultrasound / steroe / sterepo
-cap.open(0)
+cap.open(1)
 width= int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height= int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 

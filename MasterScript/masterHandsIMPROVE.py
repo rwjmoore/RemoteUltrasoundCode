@@ -500,9 +500,9 @@ class VideoStream:
         print("engine started")
         segment = input("Input Segment Name: ")
         try:
-            eng.realTimeOrientationSensorSAVEF(segment, nargout=0) 
+            #eng.realTimeOrientationSensorSAVEF(segment, nargout=0) 
 
-            #eng.realTimeOrientation(nargout=0) #testing script
+            eng.realTimeOrientation(nargout=0) #testing script
 
         except:
             print("there was an error when stopping matlab script...")
