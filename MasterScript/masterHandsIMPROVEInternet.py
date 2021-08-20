@@ -61,7 +61,7 @@ class VideoStream:
         self.skeletons = 0
         self.skeletonrate = 6
         #dataframe for my hand data 
-        self.handData = [["hand1", "hand2", "class1", "class2", "time"]]
+        self.handData = [["time", "hand1", "hand2", "class1", "class2"]]
 
         #SKELETON TRACKING STUFF
         print("initiating skeletal tracking pipeline")
@@ -180,15 +180,18 @@ class VideoStream:
         self.l2 = tki.Label(self.f4, text = 'Ultrasound Probe Tracking', bg = blu, fg= 'gold' ,font =('Arial', 15, 'bold'))
         self.l2.pack(side="top")
 
-
+        #network Diagnostics
+        self.f8 = tki.Frame(self.f7, borderwidth = 10, bg = blu)
+        self.f8.grid(row=1, column = 1, pady=10)
+        
         #Skeletal Tracking
         self.f5 = tki.Frame(self.f7, borderwidth = 10, bg = blu)
         self.f5.grid(row=2, column = 0, pady=10)
         self.l3 = tki.Label(self.f5, text = 'User Motion Tracking',bg = blu, fg= 'gold' ,font =('Arial', 15, 'bold'))
         self.l3.pack(side="top")
 
-        self.internetlabel = tki.Label(self.f7, text = 'Upload \n Speed: \n75 Mbps', bg = blu, fg= 'gold' ,font =('Arial', 15, 'bold'))
-        self.internetlabel.grid(row=1, column=1)
+        self.internetlabel = tki.Label(self.f8, text = 'Upload \n Speed: \n75 Mbps', bg = blu, fg= 'gold' ,font =('Arial', 15, 'bold'))
+        self.internetlabel.pack(side = 'top')
         
         
         # separator = Separator(self.root, orient = 'vertical')
@@ -449,11 +452,13 @@ class VideoStream:
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        #this is how you access label: results.multi_handedness[0].classification[0].label        
+        #this is how you access label: results.multi_handedness[0].classification[0].label
+        intermediateHand = np.append(intermediateHand, str(time.time()))        
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 if len(results.multi_hand_landmarks) == 1:
                     intermediateHand = np.append(intermediateHand, hand_landmarks)
+                    
                     intermediateHand = np.append(intermediateHand, 0)
 
                 else:
@@ -467,9 +472,15 @@ class VideoStream:
                 image, hand_landmarks, self.mp_hands.HAND_CONNECTIONS,
                 self.drawing_styles.get_default_hand_landmark_style(),
                 self.drawing_styles.get_default_hand_connection_style())
+            #metadata on the landmarks 
             for handed in results.multi_handedness:
-                intermediateHand = np.append(intermediateHand, handed)
-        intermediateHand = np.append(intermediateHand, str(time.time()))
+                 if len(results.multi_hand_landmarks) == 1:
+                    intermediateHand = np.append(intermediateHand, handed)
+                    intermediateHand = np.append(intermediateHand, 0)
+                 else:
+                    intermediateHand = np.append(intermediateHand, handed)
+
+        
         self.handData.append(intermediateHand)
         return image
 
@@ -536,6 +547,33 @@ class VideoStream:
         print("capture stream released")
         self.root.destroy()
     
+    def internetTest(self):
+        import speedtest
+        count = 0
+        while(1):
+            if count%30 == 0:
+                s = speedtest.Speedtest()
+                print("testing network download speed...")
+                currentDSpeed = s.download()
+                print("testing network upload speed...")
+                currentUSpeed = s.upload()
+
+
+                #convert to Mbps
+                currentDSpeed = currentDSpeed/1000000
+                print("Download Speed = "+ str(currentDSpeed))
+
+                currentUSpeed = currentUSpeed/1000000
+                print("Upload Speed = "+ str(currentUSpeed))
+                count = count + 1
+
+                #change the displayed connection speed
+                currentDSpeed
+            else:
+                count = count + 1
+            
+
+    
     
     #FUNCTION: To call the Matlab Engine to display real time orientation of ultrasound probe
     def pythonMatlabCall(self):    
@@ -546,9 +584,9 @@ class VideoStream:
         print("engine started")
         segment = input("Input Segment Name: ")
         try:
-            eng.realTimeOrientationSensorSAVEF(segment, nargout=0) 
+            #eng.realTimeOrientationSensorSAVEF(segment, nargout=0) 
 
-            # eng.realTimeOrientation(nargout=0) #testing script
+            eng.realTimeOrientation(nargout=0) #testing script
 
         except:
             print("there was an error when stopping matlab script...")
@@ -591,7 +629,7 @@ print("warming up ultrasound feed...", end = "")
 ### CAMERA 1 (Ultrasound)
 vs1 = cv2.VideoCapture()
 #below is the index (0) to get ultrasound video feed
-if vs1.open(1) == True:
+if vs1.open(0) == True:
     print(" ultrasound feed successfully opened")
 else:
     print(" ultrasound feed did not open")
@@ -605,7 +643,7 @@ vs2 = cv2.VideoCapture()
 #NOTE: open(1) opens the Microsoft LifeCam Cinema HD USB webcam 
 #NOTE: open(2) opens the RealSense USB camera connection 
 
-if vs2.open(0) == True:
+if vs2.open(1) == True:
     print(" headmounted camera started")
 else: 
     print("headmounted camera did not open")
