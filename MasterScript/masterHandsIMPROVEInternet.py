@@ -61,7 +61,7 @@ class VideoStream:
         self.skeletons = 0
         self.skeletonrate = 6
         #dataframe for my hand data 
-        self.handData = [["time", "hand1", "hand2", "class1", "class2"]]
+        self.handData = [["time","WRIST1", "THUMB_CMC1", "THUMB_MCP1", "THUMB_IP1", "THUMB_TIP1", "INDEX_FINGER_MCP1", "INDEX_FINGER_PIP1", "INDEX_FINGER_DIP1", "INDEX_FINGER_TIP1", "MIDDLE_FINGER_MCP1", "MIDDLE_FINGER_PIP1", "MIDDLE_FINGER_DIP1", "MIDDLE_FINGER_TIP1", "RING_FINGER_MCP1", "RING_FINGER_PIP1", "RING_FINGER_DIP1", "RING_FINGER_TIP1", "PINKY_MCP1", "PINKY_PIP1", "PINKY_DIP1", "PINKY_TIP1", "WRIST2", "THUMB_CMC2", "THUMB_MCP2", "THUMB_IP2", "THUMB_TIP2", "INDEX_FINGER_MCP2", "INDEX_FINGER_PIP2", "INDEX_FINGER_DIP2", "INDEX_FINGER_TIP2", "MIDDLE_FINGER_MCP2", "MIDDLE_FINGER_PIP2", "MIDDLE_FINGER_DIP2", "MIDDLE_FINGER_TIP2", "RING_FINGER_MCP2", "RING_FINGER_PIP2", "RING_FINGER_DIP2", "RING_FINGER_TIP2", "PINKY_MCP2", "PINKY_PIP2", "PINKY_DIP2", "PINKY_TIP2", "class1", "class2"]]
 
         #SKELETON TRACKING STUFF
         print("initiating skeletal tracking pipeline")
@@ -457,12 +457,54 @@ class VideoStream:
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 if len(results.multi_hand_landmarks) == 1:
-                    intermediateHand = np.append(intermediateHand, hand_landmarks)
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[0])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[1])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[2])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[3])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[4])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[5])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[6])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[7])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[8])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[9])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[10])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[11])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[12])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[13])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[14])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[15])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[16])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[17])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[18])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[19])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[20])
                     
-                    intermediateHand = np.append(intermediateHand, 0)
+                    #deal with absence of second part 
+                    for i in range(21):
+                        intermediateHand = np.append(intermediateHand, 0)
 
                 else:
-                    intermediateHand = np.append(intermediateHand, hand_landmarks) 
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[0])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[1])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[2])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[3])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[4])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[5])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[6])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[7])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[8])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[9])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[10])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[11])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[12])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[13])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[14])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[15])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[16])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[17])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[18])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[19])
+                    intermediateHand = np.append(intermediateHand, hand_landmarks.landmark[20])
             
                 
         
@@ -586,7 +628,7 @@ class VideoStream:
         try:
             #eng.realTimeOrientationSensorSAVEF(segment, nargout=0) 
 
-            eng.realTimeOrientation(nargout=0) #testing script
+            #eng.realTimeOrientation(nargout=0) #testing script
 
         except:
             print("there was an error when stopping matlab script...")
@@ -629,7 +671,7 @@ print("warming up ultrasound feed...", end = "")
 ### CAMERA 1 (Ultrasound)
 vs1 = cv2.VideoCapture()
 #below is the index (0) to get ultrasound video feed
-if vs1.open(0) == True:
+if vs1.open(8) == True:
     print(" ultrasound feed successfully opened")
 else:
     print(" ultrasound feed did not open")
@@ -662,3 +704,55 @@ vs3 = 0
 
 pba = VideoStream(vs1,vs2, vs3, "")
 pba.root.mainloop()
+
+
+
+
+
+#Landmarks of the Hands
+"""class HandLandmark(enum.IntEnum):
+  The 21 hand landmarks.
+  WRIST = 0
+  THUMB_CMC = 1
+  THUMB_MCP = 2
+  THUMB_IP = 3
+  THUMB_TIP = 4
+  INDEX_FINGER_MCP = 5
+  INDEX_FINGER_PIP = 6
+  INDEX_FINGER_DIP = 7
+  INDEX_FINGER_TIP = 8
+  MIDDLE_FINGER_MCP = 9
+  MIDDLE_FINGER_PIP = 10
+  MIDDLE_FINGER_DIP = 11
+  MIDDLE_FINGER_TIP = 12
+  RING_FINGER_MCP = 13
+  RING_FINGER_PIP = 14
+  RING_FINGER_DIP = 15
+  RING_FINGER_TIP = 16
+  PINKY_MCP = 17
+  PINKY_PIP = 18
+  PINKY_DIP = 19
+  PINKY_TIP = 20
+  """
+
+#Skeleton Landmarks 
+  """
+1 Nose 
+2 Center of Chest 
+3 right shoulder 
+4 right elbow
+5 right wrist 
+6 left shoulder
+7 left elbow
+8 left wrist 
+9 right hip
+10 right knee
+11 right ankle
+12 left hip
+13 left knee 
+14 right ankle 
+15 right eye 
+16 left eye 
+17 right ear 
+18 left ear
+ """
