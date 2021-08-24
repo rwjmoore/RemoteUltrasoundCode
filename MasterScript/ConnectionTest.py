@@ -1,7 +1,9 @@
 import speedtest
+import time
 count = 0
 while(1):
     if count%30 == 0:
+        time.sleep(2000)
         s = speedtest.Speedtest()
         print("testing network download speed...")
         currentDSpeed = s.download()

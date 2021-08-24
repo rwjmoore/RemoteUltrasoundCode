@@ -63,6 +63,9 @@ class VideoStream:
         #dataframe for my hand data 
         self.handData = [["time","WRIST1", "THUMB_CMC1", "THUMB_MCP1", "THUMB_IP1", "THUMB_TIP1", "INDEX_FINGER_MCP1", "INDEX_FINGER_PIP1", "INDEX_FINGER_DIP1", "INDEX_FINGER_TIP1", "MIDDLE_FINGER_MCP1", "MIDDLE_FINGER_PIP1", "MIDDLE_FINGER_DIP1", "MIDDLE_FINGER_TIP1", "RING_FINGER_MCP1", "RING_FINGER_PIP1", "RING_FINGER_DIP1", "RING_FINGER_TIP1", "PINKY_MCP1", "PINKY_PIP1", "PINKY_DIP1", "PINKY_TIP1", "WRIST2", "THUMB_CMC2", "THUMB_MCP2", "THUMB_IP2", "THUMB_TIP2", "INDEX_FINGER_MCP2", "INDEX_FINGER_PIP2", "INDEX_FINGER_DIP2", "INDEX_FINGER_TIP2", "MIDDLE_FINGER_MCP2", "MIDDLE_FINGER_PIP2", "MIDDLE_FINGER_DIP2", "MIDDLE_FINGER_TIP2", "RING_FINGER_MCP2", "RING_FINGER_PIP2", "RING_FINGER_DIP2", "RING_FINGER_TIP2", "PINKY_MCP2", "PINKY_PIP2", "PINKY_DIP2", "PINKY_TIP2", "class1", "class2"]]
 
+        #internet speed
+        
+
         #SKELETON TRACKING STUFF
         print("initiating skeletal tracking pipeline")
         try:
@@ -181,8 +184,8 @@ class VideoStream:
         self.l2.pack(side="top")
 
         #network Diagnostics
-        self.f8 = tki.Frame(self.f7, borderwidth = 10, bg = blu)
-        self.f8.grid(row=1, column = 1, pady=10)
+        self.f8 = tki.Frame(self.f7, borderwidth = 10, bg = 'black')
+        self.f8.grid(row=0, column = 1, pady=10)
         
         #Skeletal Tracking
         self.f5 = tki.Frame(self.f7, borderwidth = 10, bg = blu)
@@ -190,7 +193,7 @@ class VideoStream:
         self.l3 = tki.Label(self.f5, text = 'User Motion Tracking',bg = blu, fg= 'gold' ,font =('Arial', 15, 'bold'))
         self.l3.pack(side="top")
 
-        self.internetlabel = tki.Label(self.f8, text = 'Upload \n Speed: \n75 Mbps', bg = blu, fg= 'gold' ,font =('Arial', 15, 'bold'))
+        self.internetlabel = tki.Label(self.f8, text = 'Upload \n Speed: \n... Mbps', bg = 'black', fg= 'gold' ,font =('Arial', 15, 'bold'))
         self.internetlabel.pack(side = 'top')
         
         
@@ -208,15 +211,18 @@ class VideoStream:
         self.thread1 = threading.Thread(target=self.videoLoop, args=(vs1,'1',))
         self.thread2 = threading.Thread(target=self.videoLoop, args=(vs2,'2',))
         self.thread3 = threading.Thread(target=self.videoLoop, args=(vs3,'3',))
+        self.thread4 = threading.Thread(target=self.internetTest)
         
         self.thread1.setDaemon(True)
         self.thread2.setDaemon(True)
         self.thread3.setDaemon(True)
+        self.thread4.setDaemon(True)
 
         
         self.thread1.start()
         self.thread2.start()
         self.thread3.start()
+        #self.thread4.start()
         
         # set a callback to handle when the window is closed
         self.root.wm_title("Remote Ultrasound Suite")
@@ -593,26 +599,26 @@ class VideoStream:
         import speedtest
         count = 0
         while(1):
-            if count%30 == 0:
-                s = speedtest.Speedtest()
-                print("testing network download speed...")
-                currentDSpeed = s.download()
-                print("testing network upload speed...")
-                currentUSpeed = s.upload()
+            
+            s = speedtest.Speedtest()
+            #print("testing network download speed...")
+            currentDSpeed = s.download()
+            #print("testing network upload speed...")
+            currentUSpeed = s.upload()
 
 
-                #convert to Mbps
-                currentDSpeed = currentDSpeed/1000000
-                print("Download Speed = "+ str(currentDSpeed))
+            #convert to Mbps
+            currentDSpeed = currentDSpeed/1000000
+            #print("Download Speed = "+ str(currentDSpeed))
 
-                currentUSpeed = currentUSpeed/1000000
-                print("Upload Speed = "+ str(currentUSpeed))
-                count = count + 1
+            currentUSpeed = currentUSpeed/1000000
+            #print("Upload Speed = "+ str(currentUSpeed))
+            count = count + 1
 
-                #change the displayed connection speed
-                currentDSpeed
-            else:
-                count = count + 1
+            #change the displayed connection speed
+            self.internetlabel['text'] = 'Upload \n Speed: \n' + str(round(currentUSpeed)) + 'Mbps'         
+            time.sleep(300)
+        
             
 
     
@@ -628,7 +634,7 @@ class VideoStream:
         try:
             #eng.realTimeOrientationSensorSAVEF(segment, nargout=0) 
 
-            #eng.realTimeOrientation(nargout=0) #testing script
+            eng.realTimeOrientation(nargout=0) #testing script
 
         except:
             print("there was an error when stopping matlab script...")
@@ -736,8 +742,8 @@ pba.root.mainloop()
   """
 
 #Skeleton Landmarks 
-  """
-1 Nose 
+ 
+"""1 Nose 
 2 Center of Chest 
 3 right shoulder 
 4 right elbow
