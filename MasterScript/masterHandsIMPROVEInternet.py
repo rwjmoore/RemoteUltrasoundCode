@@ -59,7 +59,7 @@ class VideoStream:
         self.dataFrame = [["Nose", "Center of Chest", "right shoulder", "right elbow", "right wrist", "left shoulder", "left elbow", "left wrist", "right hip", "right knee", "right ankle", "left hip", "left knee", "right ankle", "right eye", "left eye", "right ear", "left ear", "time"]]
         self.i = 0
         self.skeletons = 0
-        self.skeletonrate = 6
+        self.skeletonrate = 5
         #dataframe for my hand data 
         self.handData = [["time","WRIST1", "THUMB_CMC1", "THUMB_MCP1", "THUMB_IP1", "THUMB_TIP1", "INDEX_FINGER_MCP1", "INDEX_FINGER_PIP1", "INDEX_FINGER_DIP1", "INDEX_FINGER_TIP1", "MIDDLE_FINGER_MCP1", "MIDDLE_FINGER_PIP1", "MIDDLE_FINGER_DIP1", "MIDDLE_FINGER_TIP1", "RING_FINGER_MCP1", "RING_FINGER_PIP1", "RING_FINGER_DIP1", "RING_FINGER_TIP1", "PINKY_MCP1", "PINKY_PIP1", "PINKY_DIP1", "PINKY_TIP1", "WRIST2", "THUMB_CMC2", "THUMB_MCP2", "THUMB_IP2", "THUMB_TIP2", "INDEX_FINGER_MCP2", "INDEX_FINGER_PIP2", "INDEX_FINGER_DIP2", "INDEX_FINGER_TIP2", "MIDDLE_FINGER_MCP2", "MIDDLE_FINGER_PIP2", "MIDDLE_FINGER_DIP2", "MIDDLE_FINGER_TIP2", "RING_FINGER_MCP2", "RING_FINGER_PIP2", "RING_FINGER_DIP2", "RING_FINGER_TIP2", "PINKY_MCP2", "PINKY_PIP2", "PINKY_DIP2", "PINKY_TIP2", "class1", "class2"]]
 
@@ -222,7 +222,7 @@ class VideoStream:
         self.thread1.start()
         self.thread2.start()
         self.thread3.start()
-        #self.thread4.start()
+        self.thread4.start()
         
         # set a callback to handle when the window is closed
         self.root.wm_title("Remote Ultrasound Suite")
@@ -265,7 +265,7 @@ class VideoStream:
                         frame = imutils.resize(frame, width = 900)
 
                     else:
-                        frame = imutils.resize(frame, width=400)
+                        frame = imutils.resize(frame, width=375)
                     # OpenCV represents images in BGR order; however PIL
                     # represents images in RGB order, so we need to swap
                     # the channels, then convert to PIL and ImageTk format
