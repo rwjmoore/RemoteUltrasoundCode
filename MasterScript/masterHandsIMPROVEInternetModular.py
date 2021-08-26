@@ -261,13 +261,13 @@ class VideoStream:
                             self.writer2.write(frame)
 
                     if panel == '3':
-                        frame = imutils.resize(frame, width=375)
+                        frame = imutils.resize(frame, width=325)
 
                     elif panel == '1':
                         frame = imutils.resize(frame, width = 900)
 
                     else:
-                        frame = imutils.resize(frame, width=375)
+                        frame = imutils.resize(frame, width=350)
                     # OpenCV represents images in BGR order; however PIL
                     # represents images in RGB order, so we need to swap
                     # the channels, then convert to PIL and ImageTk format
