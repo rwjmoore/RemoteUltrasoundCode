@@ -23,7 +23,7 @@ function [] = realTimeOrientationSensorSAVEF(segment, device)
 %   aurora_device.BEEP('1');
     
 
-hFigure = figure('Name','US Probe Orientation','NumberTitle','off','Position',[845 268 500 540])
+hFigure = figure('Name','US Probe Orientation','NumberTitle','off','Position',[1032 303.5 320 172])
 set(hFigure, 'MenuBar', 'none');
 set(hFigure, 'ToolBar', 'none');
 WindowAPI(hFigure, 'TopMost')

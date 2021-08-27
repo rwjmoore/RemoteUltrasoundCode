@@ -179,8 +179,8 @@ class VideoStream:
         self.l1.pack(side="top")
 
         #US Probe Tracking
-        self.f4 = tki.Frame(self.f7, borderwidth = 10, width = 400, height = 200, bg = blu)
-        self.f4.grid(row=1, column = 0, pady=10)
+        self.f4 = tki.Frame(self.f7, borderwidth = 10, width = 345, height = 210, bg = blu)
+        self.f4.grid(row=1, column = 0, pady=2)
         self.f4.pack_propagate(0)
         self.l2 = tki.Label(self.f4, text = 'Ultrasound Probe Tracking', bg = blu, fg= 'gold' ,font =('Arial', 15, 'bold'))
         self.l2.pack(side="top")
@@ -261,13 +261,13 @@ class VideoStream:
                             self.writer2.write(frame)
 
                     if panel == '3':
-                        frame = imutils.resize(frame, width=325)
+                        frame = imutils.resize(frame, width=320)
 
                     elif panel == '1':
-                        frame = imutils.resize(frame, width = 900)
+                        frame = imutils.resize(frame, width = 885)
 
                     else:
-                        frame = imutils.resize(frame, width=350)
+                        frame = imutils.resize(frame, width=320)
                     # OpenCV represents images in BGR order; however PIL
                     # represents images in RGB order, so we need to swap
                     # the channels, then convert to PIL and ImageTk format
@@ -713,7 +713,7 @@ print("warming up ultrasound feed...", end = "")
 ### CAMERA 1 (Ultrasound)
 vs1 = cv2.VideoCapture()
 #below is the index (0) to get ultrasound video feed
-if vs1.open(8) == True:
+if vs1.open(1) == True:
     print(" ultrasound feed successfully opened")
 else:
     print(" ultrasound feed did not open")
@@ -727,7 +727,7 @@ vs2 = cv2.VideoCapture()
 #NOTE: open(1) opens the Microsoft LifeCam Cinema HD USB webcam 
 #NOTE: open(2) opens the RealSense USB camera connection 
 
-if vs2.open(1) == True:
+if vs2.open(0) == True:
     print(" headmounted camera started")
 else: 
     print("headmounted camera did not open")
