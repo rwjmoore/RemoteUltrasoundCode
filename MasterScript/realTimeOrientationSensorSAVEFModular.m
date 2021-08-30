@@ -23,7 +23,9 @@ function [] = realTimeOrientationSensorSAVEF(segment, device)
 %   aurora_device.BEEP('1');
     
 
-hFigure = figure('Name','US Probe Orientation','NumberTitle','off','Position',[1032 303.5 320 172])
+%hFigure = figure('Name','US Probe Orientation','NumberTitle','off','Position',[1032 303.5 320 172])
+hFigure = figure('Name','US Probe Orientation','NumberTitle','off','Position',[1032 331.5 320 172]) 
+
 set(hFigure, 'MenuBar', 'none');
 set(hFigure, 'ToolBar', 'none');
 WindowAPI(hFigure, 'TopMost')
@@ -71,8 +73,8 @@ mark = mark*100;
 p(7) = patch(mark(:,1), mark(:,2), mark(:,3), 'black');
 %ADD THIS PORTION TO THE NEW SCRIPT AND TEST THAT IT SHOWS THE RIGHT SIZE
 %AND IS NOT HIGH LATENCY
-[x,y,z] = sphere(1);
-g = 60;
+[x,y,z] = sphere(5);
+g = 80;
 fvc = surf2patch(x*g,y*g,z*g - 50);
 X = patch('Faces', fvc.faces, 'Vertices', fvc.vertices, 'FaceColor', [1, 0, 0]);
 p(8) = X;

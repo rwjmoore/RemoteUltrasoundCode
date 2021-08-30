@@ -552,7 +552,7 @@ class VideoStream:
     def zoomFlag(self):
         self.button2.configure(bg='red',)
         import webbrowser
-
+        
         webbrowser.open('https://ucalgary.zoom.us/j/6948856500')  # Go to zoom meeting
     
     
@@ -663,7 +663,11 @@ class VideoStream:
         elif self.matlabCount == 2:
             #begin magnetic tracking
             self.button1.configure(bg='red',)
-            segment = input("Input Segment Name: ")
+
+            #segment = input("Input Segment Name: ")
+            segment = tki.simpledialog.askstring("Input", "Name of Ultrasound Procedure", parent= self.root)
+           
+
             try:
                 #eng.realTimeOrientationSensorSAVEF(segment, nargout=0)
 
