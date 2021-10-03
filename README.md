@@ -10,6 +10,6 @@ This software suite represents two goals:
 
  2: To facilitate a remote, telemonitored ultrasound examination by recording, and streaming live video. 
  
-Goal 1. is achieved by interfacing with NDI's Aurora Magnetic Tracking device to track ultrasound probe movement to a high degree of precision. Two neural networks are also concurrently run to process live video to track both skeleton and hand movements. 
+Goal 1. is achieved by interfacing with NDI's Aurora Magnetic Tracking device to track ultrasound probe movement to a high degree of precision. Written in Python, this program interfaces with the MATLAB engine to connect and process the magnetic tracking data. Two neural networks are also concurrently run to process live video to track both skeleton and hand movements. 
  
-Goal 2. is achieved via an ADC conversion of incoming ultrasound images from a Sonosite NanoMaxx Transducer, which is then displayed in a GUI served to a remote user via the Zoom Teleconference Platform. 
+Goal 2. is achieved via an ADC conversion of incoming ultrasound images from a Sonosite NanoMaxx Transducer, which is then displayed in a GUI served to a remote user via the Zoom Teleconference Platform. The Tx and Rx speeds of the current connection is also monitored and displayed to the user. 
