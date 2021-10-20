@@ -14,5 +14,6 @@ Goal 1. is achieved by interfacing with NDI's Aurora Magnetic Tracking device to
  
 Goal 2. is achieved via an ADC conversion of incoming ultrasound images from a Sonosite NanoMaxx Transducer, which is then displayed in a GUI served to a remote user via the Zoom Teleconference Platform. The Tx and Rx speeds of the current connection are also monitored and displayed to the user. 
 
+This code was optimized to run on standard OS and PC's found in hospital settings. As such, the below demo was conducted on a Windows PC with a quadcore i7 of the 10th generation. 
 
 ![alt text](https://github.com/rwjmoore/RemoteUltrasoundCode/blob/4bc53d44e5bd929fcfeeb0514584e37832f77591/US%20screen%20capture.png?raw=true)
