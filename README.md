@@ -6,9 +6,9 @@ This project aims to address the incoming need for infrastructure and evidence n
 
 This software suite represents two goals:
 
- 1: To quantitatively analyze ultrasound examinations to validate how well ultrasound exams can be performed through remote (telemonitroed) guidance. 
+ <b>1: To quantitatively analyze ultrasound examinations to validate how well ultrasound exams can be performed through remote (telemonitroed) guidance. 
 
- 2: To facilitate a remote, telemonitored ultrasound examination by recording, and streaming live video. 
+ 2: To facilitate a remote, telemonitored ultrasound examination by recording, and streaming live video. </b>
  
 Goal 1. is achieved by interfacing with NDI's Aurora Magnetic Tracking device to track ultrasound probe movement to a high degree of precision. Written in Python, this program interfaces with the MATLAB engine to connect and process the magnetic tracking data. Two neural networks are also concurrently run to process live video to track both skeleton and hand movements. 
  
