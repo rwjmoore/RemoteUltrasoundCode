@@ -1,11 +1,5 @@
 #this is the master script for the remote ultrasound suite
 
-""" STEPS
-1. connect to wifi (not included b/c might use CAT6 connection
-2. initiate video recording and display of video
-3. open zoom
-4. start meeting and send email to end user with zoom link
-5. share screen """
 
 #VIDEO START
 # import the necessary packages
@@ -35,7 +29,7 @@ from NDI_PyTrack import NDI_pytrack
 import mediapipe as mp
 
 
-"""SKELETON TRACKING FUNCTIONS"""
+
 
 
 
@@ -67,10 +61,9 @@ class VideoStream:
         #flag for saving both the skeletal and hand tracking data 
         self.saveFlag = False
 
-        #internet speed
         
 
-        #SKELETON TRACKING STUFF
+        #SKELETON TRACKING 
         print("initiating skeletal tracking pipeline")
         try:
                 # Configure depth and color streams of the intel realsense
@@ -97,7 +90,7 @@ class VideoStream:
         except:
             print("exception occured in skeleton tracking initialization")
 
-        #hand tracking stuff
+        #hand tracking - initializing pipeline configs
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_hands = mp.solutions.hands
         self.drawing_styles = mp.solutions.drawing_styles
@@ -117,7 +110,7 @@ class VideoStream:
         self.mypanels = {"1" : self.panel1, "2": self.panel2, "3": self.panel3}
         
         
-         #Tkinter Stuff
+         #Tkinter Tweaks
         #*************************************************************
         #self.root.geometry('900x300')
         
@@ -519,7 +512,7 @@ class VideoStream:
             
                 
         
-      #this appears to be the coordinates for finger tips in pixels? 
+      # coordinates for finger tips in pixels
         
                 self.mp_drawing.draw_landmarks(
                 image, hand_landmarks, self.mp_hands.HAND_CONNECTIONS,
@@ -806,6 +799,9 @@ pba.root.mainloop()
 
 
 
+
+
+#Landmarks for interfacing with the machine learning pipelines
 #Landmarks of the Hands
 """class HandLandmark(enum.IntEnum):
   The 21 hand landmarks.
