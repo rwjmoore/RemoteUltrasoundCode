@@ -6,7 +6,7 @@ This project aims to address the incoming need for infrastructure and evidence n
 
 This software suite represents two goals:
 
- <b>1: To quantitatively analyze ultrasound examinations to validate how well ultrasound exams can be performed through remote (telemonitroed) guidance. 
+ <b>1: To quantitatively analyze ultrasound examinations to validate how well ultrasound exams can be performed through remote (telemonitored) guidance. 
 
  2: To facilitate a remote, telemonitored ultrasound examination by recording, and streaming live video. </b>
  
