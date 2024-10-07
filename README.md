@@ -4,7 +4,7 @@ This project represents a deployable system for quantitatively assessing ultraso
 
 This project aims to address the incoming need for infrastructure and evidence needed to implement telehealth in light of improved satellite communications. StarLink is set to revolutionize how we access the internet. Before utilizing this resource to improve healthcare delivery in remote regions, proof is needed of it's utility, and a plan is needed for its implementation. 
 
-This software suite represents two goals:
+This software suite tackles two goals:
 
  <b>1: To quantitatively analyze ultrasound examinations to validate how well ultrasound exams can be performed through remote (telemonitored) guidance. 
 
