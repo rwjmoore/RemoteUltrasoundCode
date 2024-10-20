@@ -1,4 +1,4 @@
-# RemoteUltrasoundCode
+# Remote Ultrasound Code
 This project represents a deployable system for quantitatively assessing ultrasound examination performace partially funded by the University of Calgary's Department of Surgery and supervised by Dr. Paul B. McBeth. 
 
 
