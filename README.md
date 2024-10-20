@@ -17,3 +17,5 @@ Goal 2. is achieved via an ADC conversion of incoming ultrasound images from a S
 This code was optimized to run on standard OS and PC's found in hospital settings. As such, the below demo was conducted on a Windows PC with a quadcore i7 of the 10th generation. 
 
 ![alt text](https://github.com/rwjmoore/RemoteUltrasoundCode/blob/4bc53d44e5bd929fcfeeb0514584e37832f77591/US%20screen%20capture.png?raw=true)
+
+The figure above depicts the Remote Ultrasound Code Graphical User Interface that is shown to the remote clinican telemonitoring the procedure in real-time. Notable features include the ultrasound image, the frame used for tracking the posture of the sonographer, and the head-mounted Point of View (POV) camera used to facilitate the telemonitoring as well as track the pose of the sonographers hands. 
